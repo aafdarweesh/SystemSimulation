@@ -41,7 +41,6 @@ public class RandomVariates {
 		//alpha -> scale
 		//beta -> shape
 		//nu -> location
-		
 		this.mean = nu + alpha*Gamma.gamma(1/beta + 1);
 		this.variance = alpha*alpha * (Gamma.gamma(2/beta + 1) - Math.sqrt(Gamma.gamma(1/beta + 1)));
 		return (alpha * Math.pow(-Math.log(Math.random()), 1/beta) + nu);
