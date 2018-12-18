@@ -33,6 +33,8 @@ public class RandomVariates {
 		double z =  Math.sqrt((-2*Math.log(Math.random()))) * Math.cos(2 * Math.PI * Math.random());
 		return Math.pow(Math.E, mean + Math.sqrt(variance)*z);
 	}
+	
+
 
 	public double getMean() {
 		return mean;
