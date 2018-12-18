@@ -18,6 +18,8 @@ public class RandomVariates {
 		}while(r == 0.0 || r == 1.0);
 		return r;
 	}
+	
+	
 
 	public double getMean() {
 		return mean;
