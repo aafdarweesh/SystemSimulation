@@ -1,5 +1,7 @@
 import java.util.Scanner;
 
+import org.apache.commons.math3.special.*;
+
 public class RandomVariates {
 
 	private double mean;
@@ -32,6 +34,16 @@ public class RandomVariates {
 		this.variance = variance;
 		double z =   Math.sqrt((-2*Math.log(Math.random()))) * Math.cos(2 * Math.PI * Math.random());
 		return Math.pow(Math.E, mean + Math.sqrt(variance)*z);
+	}
+	
+	public double weibull(double alpha, double beta, double nu)
+	{
+		//alpha -> scale
+		//beta -> shape
+		//nu -> location
+		this.mean = nu + alpha*Gamma.gamma(1/beta + 1);
+		this.variance = alpha*alpha * (Gamma.gamma(2/beta + 1) - Math.sqrt(Gamma.gamma(1/beta + 1)));
+		return (alpha * Math.pow(-Math.log(Math.random()), 1/beta) + nu);
 	}
 	
 	public double getMean() {
