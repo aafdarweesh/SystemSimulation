@@ -16,7 +16,7 @@ public class RandomVariatesTest {
 		testMean /= numberOfTests;
 
 		System.out.println(
-				"Mean to be tested : " + Double.toString(mean) + ", Measured Mean : " + Double.toString(testMean));
+				"Mean to be tested : " + Double.toString(rv.getMean()) + ", Measured Mean : " + Double.toString(testMean));
 
 	}
 	
@@ -29,8 +29,23 @@ public class RandomVariatesTest {
 		testMean /= numberOfTests;
 
 		System.out.println(
-				"Mean to be tested : " + Double.toString(mean) + ", Measured Mean : " + Double.toString(testMean));
+				"Mean to be tested : " + Double.toString(rv.getMean()) + ", Measured Mean : " + Double.toString(testMean));
 
+	}
+	
+	void weibullTest(double alpha, double beta, double nu) {
+		
+		double testMean = 0.0;
+		int numberOfTests = 1000000;
+		for (int i = 0; i < 1000000; ++i) {
+			testMean += rv.weibull(alpha, beta, nu);
+		}
+		testMean /= numberOfTests;
+
+		System.out.println(
+				"Mean to be tested : " + Double.toString(rv.getMean()) + ", Measured Mean : " + Double.toString(testMean));
+
+		
 	}
 
 }
