@@ -1,5 +1,6 @@
 import java.util.Scanner;
 
+
 public class RandomVariates {
 
 	private double mean;
@@ -19,7 +20,21 @@ public class RandomVariates {
 		return r;
 	}
 	
+	public double exponential(double mean)
+	{
+		this.mean = mean;
+		this.variance = mean*mean;
+		return -Math.log(uniform())*this.mean;
+	}
 	
+	public double logNormal(double mean, double variance)
+	{
+		this.mean = mean;
+		this.variance = variance;
+		double z =   Math.sqrt((-2*Math.log(Math.random()))) * Math.cos(2 * Math.PI * Math.random());
+		return Math.pow(Math.E, mean + Math.sqrt(variance)*z);
+	}
+
 	public double getMean() {
 		return mean;
 	}
