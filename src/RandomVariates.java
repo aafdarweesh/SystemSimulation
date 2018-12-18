@@ -1,6 +1,8 @@
 import java.util.Scanner;
 
+
 import org.apache.commons.math3.special.*;
+
 
 public class RandomVariates {
 
@@ -20,7 +22,7 @@ public class RandomVariates {
 		} while (r == 0.0 || r == 1.0);
 		return r;
 	}
-
+	
 	public double exponential(double mean)
 	{
 		this.mean = mean;
@@ -35,6 +37,7 @@ public class RandomVariates {
 		double z =   Math.sqrt((-2*Math.log(Math.random()))) * Math.cos(2 * Math.PI * Math.random());
 		return Math.pow(Math.E, mean + Math.sqrt(variance)*z);
 	}
+
 	
 	public double weibull(double alpha, double beta, double nu)
 	{
@@ -46,6 +49,7 @@ public class RandomVariates {
 		return (alpha * Math.pow(-Math.log(Math.random()), 1/beta) + nu);
 	}
 	
+
 	public double getMean() {
 		return mean;
 	}
