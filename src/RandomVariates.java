@@ -30,12 +30,12 @@ public class RandomVariates {
 		return -Math.log(uniform())*this.mean;
 	}
 	
-	public double logNormal(double mean, double variance)
+	public double logNormal(double normalMean, double normalVariance)
 	{
-		this.mean = mean;
-		this.variance = variance;
+		this.mean = Math.pow(Math.E, normalMean + normalVariance/2);
+		this.variance = (Math.pow(Math.E, normalVariance) - 1) * (Math.pow(Math.E, normalVariance + 2*normalMean));
 		double z =   Math.sqrt((-2*Math.log(Math.random()))) * Math.cos(2 * Math.PI * Math.random());
-		return Math.pow(Math.E, mean + Math.sqrt(variance)*z);
+		return Math.pow(Math.E, normalMean + Math.sqrt(normalVariance)*z);
 	}
 
 	
