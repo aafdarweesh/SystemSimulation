@@ -30,7 +30,7 @@ public class RandomVariates {
 	{
 		this.mean = mean;
 		this.variance = variance;
-		double z =  Math.sqrt((-2*Math.log(Math.random()))) * Math.cos(2 * Math.PI * Math.random());
+		double z =   Math.sqrt((-2*Math.log(Math.random()))) * Math.cos(2 * Math.PI * Math.random());
 		return Math.pow(Math.E, mean + Math.sqrt(variance)*z);
 	}
 	
