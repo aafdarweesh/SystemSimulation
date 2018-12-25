@@ -8,6 +8,7 @@ import randomGens.WeibullGenerator;
 public class mainApp {
 
 	public static void main(String[] args) {
+		
 		System.out.println("Now testing Expo:");
 		TestGenerator.test(new ExponentialGenerator(2.0));
 		
