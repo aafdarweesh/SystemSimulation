@@ -1,6 +1,6 @@
 
 public class Main {
-
+/*
 	public static void main(String[] args) {
 		
 		RandomVariatesTest randomVariatesTest = new RandomVariatesTest();
@@ -8,5 +8,5 @@ public class Main {
 		randomVariatesTest.logNormalTest(2, 1);
 		randomVariatesTest.weibullTest(2, 1, 0);
 	}
-
+*/
 }
