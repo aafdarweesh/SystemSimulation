@@ -16,8 +16,7 @@ public abstract class Simulation {
 	protected ArrayList<Job> servedJobs;
 	protected double clock;
 
-	public Simulation(double meanInterArrivalTime, double meanSerivceTime, double numberOfServers, double numberOfJobs,
-			ArrayList<Job> queue, ArrayList<Server> servers, ArrayList<Job> servedJobs) {
+	public Simulation(double meanInterArrivalTime, double meanSerivceTime, double numberOfServers, double numberOfJobs) {
 		this.meanInterArrivalTime = meanInterArrivalTime;
 		this.meanSerivceTime = meanSerivceTime;
 		this.numberOfServers = numberOfServers;
