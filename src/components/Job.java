@@ -1,8 +1,8 @@
 package components;
 
 public class Job {
-	private static double nextID = 0;
-	private double id;
+	private static int nextID = 0;
+	private int id;
 	private double arrivalTime;
 	private double serviceTime;
 	private double serviceStartTime;
@@ -15,11 +15,11 @@ public class Job {
 		this.serviceStartTime = -1;
 	}
 	
-	public double getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(double id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 

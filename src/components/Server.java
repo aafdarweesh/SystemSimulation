@@ -18,12 +18,14 @@ public class Server {
 	
 	//Add new job to the server
 	public void addJob(Job job, double clock) {
-		job.setServiceStartTime(clock);
+		//job.setServiceStartTime(clock);
 		this.jobBeingServed = job;
+		//this.jobBeingServed.setServiceStartTime(clock);
 		this.emptyStatus = false;
 	}
 	
 	public Job finishJob() {
+		//System.out.println(this.jobBeingServed.getArrivalTime());
 		Job finished = null;
 		this.emptyStatus = true;
 		finished = this.jobBeingServed;
