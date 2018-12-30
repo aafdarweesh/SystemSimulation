@@ -9,8 +9,6 @@ public class Server {
 	private Job jobBeingServed;
 	
 	
-	
-	
 	public Server()
 	{
 		this.id = nextID++;
