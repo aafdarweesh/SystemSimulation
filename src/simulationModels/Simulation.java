@@ -1,18 +1,30 @@
 package simulationModels;
 
+import java.util.ArrayList;
+
+import components.Job;
+import components.Server;
+
 public abstract class Simulation {
 
 	protected double meanInterArrivalTime;
 	protected double meanSerivceTime;
 	protected double numberOfServers;
 	protected double numberOfJobs;
-	
-	public Simulation(double meanInterArrivalTime, double meanSerivceTime, double numberOfServers,
-			double numberOfJobs) {
+	protected ArrayList<Job> queue;
+	protected ArrayList<Server> servers;
+	protected ArrayList<Job> servedJobs;
+	protected double clock;
+
+	public Simulation(double meanInterArrivalTime, double meanSerivceTime, double numberOfServers, double numberOfJobs,
+			ArrayList<Job> queue, ArrayList<Server> servers, ArrayList<Job> servedJobs) {
 		this.meanInterArrivalTime = meanInterArrivalTime;
 		this.meanSerivceTime = meanSerivceTime;
 		this.numberOfServers = numberOfServers;
 		this.numberOfJobs = numberOfJobs;
+		this.queue = new ArrayList<>();
+		this.servers = new ArrayList<>();
+		this.servedJobs = new ArrayList<>();
 	}
 
 	public double getMeanInterArrivalTime() {
@@ -46,6 +58,44 @@ public abstract class Simulation {
 	public void setNumberOfJobs(double numberOfJobs) {
 		this.numberOfJobs = numberOfJobs;
 	}
-	
+
+	public ArrayList<Job> getQueue() {
+		return queue;
+	}
+
+	public void setQueue(ArrayList<Job> queue) {
+		this.queue = queue;
+	}
+
+	public ArrayList<Server> getServers() {
+		return servers;
+	}
+
+	public void setServers(ArrayList<Server> servers) {
+		this.servers = servers;
+	}
+
+	public ArrayList<Job> getServedJobs() {
+		return servedJobs;
+	}
+
+	public void setServedJobs(ArrayList<Job> servedJobs) {
+		this.servedJobs = servedJobs;
+	}
+
+	public int[] checkServers() {
+		int emptyServerIndex = -1;
+		int numberOfEmpty = 0;
+		for (int i = 0; i < servers.size(); i++) {
+			if (servers.get(i).isEmptyStatus()) {
+				emptyServerIndex = i;
+				numberOfEmpty ++;
+			}
+		}
+		return new int[] {emptyServerIndex, numberOfEmpty};
+	}
+
 	public abstract void startSimulation();
+
+	public abstract boolean isEndSimulation();
 }

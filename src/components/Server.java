@@ -13,12 +13,22 @@ public class Server {
 	{
 		this.id = nextID++;
 		emptyStatus = true;
+		jobBeingServed = null;
 	} 
 	
 	//Add new job to the server
-	public void addJob(Job job) {
+	public void addJob(Job job, double clock) {
+		job.setServiceStartTime(clock);
 		this.jobBeingServed = job;
 		this.emptyStatus = false;
+	}
+	
+	public Job finishJob() {
+		Job finished = null;
+		this.emptyStatus = true;
+		finished = this.jobBeingServed;
+		this.jobBeingServed = null;
+		return finished;
 	}
 	
 	//BreakDown status
