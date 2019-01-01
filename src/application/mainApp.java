@@ -2,6 +2,7 @@ package application;
 
 import javax.sql.rowset.spi.TransactionalWriter;
 
+import generator.PacketGenerator;
 import randomGens.ExponentialGenerator;
 import randomGens.LogNormalGenerator;
 import randomGens.RandomGenerator;
@@ -27,8 +28,15 @@ public class mainApp {
 		for(int i=0; i<60; i++)
 			System.out.println(randomGenerator.generate());*/
 		
-		MMC trial = new MMC(2, 1, 3, 100);
+		/*MMC trial = new MMC(1, 1, 3, 100);
 		trial.startSimulation();
+		trial.showResult();*/
+		
+		PacketGenerator pG = new PacketGenerator();
+		//pG.DisplayListOfJobs();
+		
+		MMC trial = new MMC(1, 1, 3, 100);
+		trial.startSimulation(pG.GeneratePackets(100, 3, 2));
 		trial.showResult();
 	}
 
