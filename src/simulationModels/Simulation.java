@@ -94,7 +94,7 @@ public abstract class Simulation {
 		return new int[] {emptyServerIndex, numberOfEmpty};
 	}
 
-	public abstract void startSimulation();
+	public abstract void startSimulation(ArrayList<Job> listOfJobs);
 
 	public abstract boolean isEndSimulation();
 }

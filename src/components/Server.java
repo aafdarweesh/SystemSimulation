@@ -18,7 +18,7 @@ public class Server {
 	
 	//Add new job to the server
 	public void addJob(Job job, double clock) {
-		//job.setServiceStartTime(clock);
+		job.setServiceStartTime(clock);
 		this.jobBeingServed = job;
 		//this.jobBeingServed.setServiceStartTime(clock);
 		this.emptyStatus = false;
