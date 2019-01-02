@@ -5,13 +5,20 @@ import java.util.ArrayList;
 import components.Job;
 import components.Server;
 
-public class MMC extends Simulation {
+public class MMCL extends Simulation{
+	
+	protected int queueLength = 0;
 
-	public MMC(double numberOfServers, double numberOfJobs) {
+	public MMCL(double numberOfServers, double numberOfJobs, int queueLength) {
 		super(numberOfServers, numberOfJobs);
+		
+		//initialize the servers
 		for (int i = 0; i < numberOfServers; i++) {
 			servers.add(new Server());
 		}
+		//change the queue length
+		this.queueLength = queueLength;
+		
 	}
 
 	public void showResult() {
@@ -102,7 +109,7 @@ public class MMC extends Simulation {
 		return false;
 	}
 
-	private class NextEvent {
+	class NextEvent {
 
 		public int getNextEvent() {
 
@@ -124,4 +131,6 @@ public class MMC extends Simulation {
 		}
 	}
 
+	
+	
 }

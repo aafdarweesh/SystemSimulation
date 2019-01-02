@@ -31,7 +31,7 @@ public class mainApp {
 		PacketGenerator pG = new PacketGenerator();
 		// pG.DisplayListOfJobs();
 
-		MMC trial = new MMC(1, 1, 3, 100);
+		MMC trial = new MMC(3, 100);
 		trial.startSimulation(pG.GeneratePackets(100, 3, 2));
 		trial.showResult();
 	}
