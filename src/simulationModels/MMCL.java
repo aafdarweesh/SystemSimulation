@@ -5,20 +5,20 @@ import java.util.ArrayList;
 import components.Job;
 import components.Server;
 
-public class MMCL extends Simulation{
-	
+public class MMCL extends Simulation {
+
 	protected int queueLength = 0;
 
 	public MMCL(double numberOfServers, double numberOfJobs, int queueLength) {
 		super(numberOfServers, numberOfJobs);
-		
-		//initialize the servers
+
+		// initialize the servers
 		for (int i = 0; i < numberOfServers; i++) {
 			servers.add(new Server());
 		}
-		//change the queue length
+		// change the queue length
 		this.queueLength = queueLength;
-		
+
 	}
 
 	public void showResult() {
@@ -29,7 +29,7 @@ public class MMCL extends Simulation{
 					+ servedJobs.get(i).getArrivalTime() + " service start, end: "
 					+ servedJobs.get(i).getServiceStartTime() + ", " + servedJobs.get(i).getServiceEndTime());
 		}
-		
+
 		System.out.println("List of dropped jobs :" + droppedJobs.size() + "\n");
 		for (int i = 0; i < droppedJobs.size(); ++i) {
 			System.out.println("Job ID : " + Integer.toString(droppedJobs.get(i).getId()) + ",The waiting time is : "
@@ -48,14 +48,14 @@ public class MMCL extends Simulation{
 
 		int currentJobID = 0;
 		double nextJobArrivalTime = 0;
-		
-		//System.out.println("Start Simulation Function !!!");
+
+		// System.out.println("Start Simulation Function !!!");
 
 		while (!isEndSimulation()) {
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
-			//System.out.println("Iteration!");
+			// System.out.println("Iteration!");
 
 			nextServerID = nextEvent.getNextEvent(); // the id of the next server going to finish
 			if (currentJobID < listOfJobs.size())
@@ -78,28 +78,19 @@ public class MMCL extends Simulation{
 
 				this.clock = nextJobArrivalTime; // Change the time
 
-				//Check that the length of the queue is not exceeded
-				if(queue.size() >= queueLength) {
-					droppedJobs.add(listOfJobs.get(currentJobID)); //add the new job to the dropped list
-				}else
+				// Check that the length of the queue is not exceeded
+				if (queue.size() >= queueLength) {
+					droppedJobs.add(listOfJobs.get(currentJobID)); // add the new job to the dropped list
+					System.out.println("Job (dropped): " + Integer.toString(currentJobID));
+				} else {
 					queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
-
-				currentJobID++;
-				//System.out.println("Arrival");
-
-			}
-			// Push the jobs waiting in the queue to the servers if they are Idel
-			int i = 0;
-			while (queue.size() > 0 && i < servers.size()) {
-				// If the server is empty and there is a job, add the job to the server
-				if (servers.get(i).isEmptyStatus() == true) {
-					servers.get(i).addJob(queue.get(0), this.clock); // current system time
-					queue.remove(0);
+					System.out.println("Job (queue): " + Integer.toString(currentJobID));
 				}
-				//System.out.println("Push from the queue");
-				i++;
-			}
-			//Look to get the next job after checking the queue, and current idel servers
+				currentJobID++;
+				// System.out.println("Arrival");
+
+			} else
+			// Look to get the next job after checking the queue, and current idel servers
 			if ((servers.get(nextServerID).isEmptyStatus() == false
 					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
 					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
@@ -109,9 +100,21 @@ public class MMCL extends Simulation{
 				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
 
 				servers.get(nextServerID).finishJob();
-				//System.out.println("Departure");
+				// System.out.println("Departure");
 			}
-			
+			// Push the jobs waiting in the queue to the servers if they are Idel
+			int i = 0;
+			while (queue.size() > 0 && i < servers.size()) {
+				// If the server is empty and there is a job, add the job to the server
+				if (servers.get(i).isEmptyStatus() == true) {
+					servers.get(i).addJob(queue.get(0), this.clock); // current system time
+					System.out.println("Job (toServer): " + Integer.toString(queue.get(0).getId()));
+					queue.remove(0);
+				}
+				// System.out.println("Push from the queue");
+				i++;
+			}
+
 		}
 	}
 
@@ -138,12 +141,8 @@ public class MMCL extends Simulation{
 			}
 
 			return nextEvent;
-			
-			
-			
+
 		}
 	}
 
-	
-	
 }

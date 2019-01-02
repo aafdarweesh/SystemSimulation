@@ -34,14 +34,14 @@ public class MMC extends Simulation {
 
 		int currentJobID = 0;
 		double nextJobArrivalTime = 0;
-		
-		//System.out.println("Start Simulation Function !!!");
+
+		// System.out.println("Start Simulation Function !!!");
 
 		while (!isEndSimulation()) {
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
-			//System.out.println("Iteration!");
+			// System.out.println("Iteration!");
 
 			nextServerID = nextEvent.getNextEvent(); // the id of the next server going to finish
 			if (currentJobID < listOfJobs.size())
@@ -67,8 +67,19 @@ public class MMC extends Simulation {
 				queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
 
 				currentJobID++;
-				//System.out.println("Arrival");
+				// System.out.println("Arrival");
 
+			} else // Look to get the next job after checking the queue, and current idel servers
+			if ((servers.get(nextServerID).isEmptyStatus() == false
+					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
+
+				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
+
+				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
+
+				servers.get(nextServerID).finishJob();
+				// System.out.println("Departure");
 			}
 
 			// Push the jobs waiting in the queue to the servers if they are Idel
@@ -79,23 +90,10 @@ public class MMC extends Simulation {
 					servers.get(i).addJob(queue.get(0), this.clock); // current system time
 					queue.remove(0);
 				}
-				//System.out.println("Push from the queue");
+				// System.out.println("Push from the queue");
 				i++;
 			}
-			
-			//Look to get the next job after checking the queue, and current idel servers
-			if ((servers.get(nextServerID).isEmptyStatus() == false
-					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
-					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
 
-				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
-
-				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
-
-				servers.get(nextServerID).finishJob();
-				//System.out.println("Departure");
-			}
-			
 		}
 	}
 
@@ -122,9 +120,7 @@ public class MMC extends Simulation {
 			}
 
 			return nextEvent;
-			
-			
-			
+
 		}
 	}
 
