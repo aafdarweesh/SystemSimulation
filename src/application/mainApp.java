@@ -31,13 +31,15 @@ public class mainApp {
 		 */
 		PacketGenerator pG = new PacketGenerator();
 		// pG.DisplayListOfJobs();
-
+		pG.GeneratePackets(100, 3, 2);
+		
 		MMC trial = new MMC(3, 100);
-		trial.startSimulation(pG.GeneratePackets(100, 3, 2));
+		trial.startSimulation(pG.RetrieveListOfJobs());
 		trial.showResult();
 		
+		
 		MMCL trial2 = new MMCL(3, 100, 2);
-		trial2.startSimulation(pG.GeneratePackets(100, 3, 2));
+		trial2.startSimulation(pG.RetrieveListOfJobs());
 		trial2.showResult();
 		
 		
