@@ -7,7 +7,6 @@ import randomGens.LogNormalGenerator;
 import randomGens.RandomGenerator;
 import randomGens.TestGenerator;
 import randomGens.WeibullGenerator;
-import simulationModels.MMC;
 import simulationModels.Simulation;
 
 public class mainApp {
@@ -27,9 +26,9 @@ public class mainApp {
 		for(int i=0; i<60; i++)
 			System.out.println(randomGenerator.generate());*/
 		
-		MMC trial = new MMC(2, 1, 3, 100);
+		/*MMC trial = new MMC(2, 1, 3, 100);
 		trial.startSimulation();
-		trial.showResult();
+		trial.showResult();*/
 	}
 
 }
