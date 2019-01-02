@@ -69,16 +69,6 @@ public class MMC extends Simulation {
 				currentJobID++;
 				//System.out.println("Arrival");
 
-			} else if ((servers.get(nextServerID).isEmptyStatus() == false
-					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
-					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
-
-				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
-
-				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
-
-				servers.get(nextServerID).finishJob();
-				//System.out.println("Departure");
 			}
 
 			// Push the jobs waiting in the queue to the servers if they are Idel
@@ -92,6 +82,20 @@ public class MMC extends Simulation {
 				//System.out.println("Push from the queue");
 				i++;
 			}
+			
+			//Look to get the next job after checking the queue, and current idel servers
+			if ((servers.get(nextServerID).isEmptyStatus() == false
+					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
+
+				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
+
+				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
+
+				servers.get(nextServerID).finishJob();
+				//System.out.println("Departure");
+			}
+			
 		}
 	}
 

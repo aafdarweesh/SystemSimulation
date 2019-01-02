@@ -12,6 +12,7 @@ public abstract class Simulation {
 	protected ArrayList<Job> queue;
 	protected ArrayList<Server> servers;
 	protected ArrayList<Job> servedJobs;
+	protected ArrayList<Job> droppedJobs;
 	protected double clock;
 
 	public Simulation(double numberOfServers, double numberOfJobs) {
@@ -21,6 +22,23 @@ public abstract class Simulation {
 		this.queue = new ArrayList<>();
 		this.servers = new ArrayList<>();
 		this.servedJobs = new ArrayList<>();
+		this.droppedJobs = new ArrayList<>();
+	}
+
+	public ArrayList<Job> getDroppedJobs() {
+		return droppedJobs;
+	}
+
+	public void setDroppedJobs(ArrayList<Job> droppedJobs) {
+		this.droppedJobs = droppedJobs;
+	}
+
+	public double getClock() {
+		return clock;
+	}
+
+	public void setClock(double clock) {
+		this.clock = clock;
 	}
 
 	public double getNumberOfServers() {

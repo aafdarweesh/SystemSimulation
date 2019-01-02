@@ -29,7 +29,14 @@ public class MMCL extends Simulation{
 					+ servedJobs.get(i).getArrivalTime() + " service start, end: "
 					+ servedJobs.get(i).getServiceStartTime() + ", " + servedJobs.get(i).getServiceEndTime());
 		}
-
+		
+		System.out.println("List of dropped jobs :" + droppedJobs.size() + "\n");
+		for (int i = 0; i < droppedJobs.size(); ++i) {
+			System.out.println("Job ID : " + Integer.toString(droppedJobs.get(i).getId()) + ",The waiting time is : "
+					+ Double.toString(droppedJobs.get(i).getTimeInQueue()) + " arrival: "
+					+ droppedJobs.get(i).getArrivalTime() + " service start, end: "
+					+ droppedJobs.get(i).getServiceStartTime() + ", " + droppedJobs.get(i).getServiceEndTime());
+		}
 	}
 
 	@Override
@@ -71,23 +78,16 @@ public class MMCL extends Simulation{
 
 				this.clock = nextJobArrivalTime; // Change the time
 
-				queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
+				//Check that the length of the queue is not exceeded
+				if(queue.size() >= queueLength) {
+					droppedJobs.add(listOfJobs.get(currentJobID)); //add the new job to the dropped list
+				}else
+					queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
 
 				currentJobID++;
 				//System.out.println("Arrival");
 
-			} else if ((servers.get(nextServerID).isEmptyStatus() == false
-					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
-					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
-
-				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
-
-				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
-
-				servers.get(nextServerID).finishJob();
-				//System.out.println("Departure");
 			}
-
 			// Push the jobs waiting in the queue to the servers if they are Idel
 			int i = 0;
 			while (queue.size() > 0 && i < servers.size()) {
@@ -99,12 +99,25 @@ public class MMCL extends Simulation{
 				//System.out.println("Push from the queue");
 				i++;
 			}
+			//Look to get the next job after checking the queue, and current idel servers
+			if ((servers.get(nextServerID).isEmptyStatus() == false
+					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
+
+				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
+
+				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
+
+				servers.get(nextServerID).finishJob();
+				//System.out.println("Departure");
+			}
+			
 		}
 	}
 
 	@Override
 	public boolean isEndSimulation() {
-		if (servedJobs.size() == numberOfJobs)
+		if (servedJobs.size() + droppedJobs.size() == numberOfJobs)
 			return true;
 		return false;
 	}
