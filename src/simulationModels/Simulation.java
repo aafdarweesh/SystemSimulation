@@ -94,6 +94,11 @@ public abstract class Simulation {
 	}
 
 	public abstract void startSimulation(ArrayList<Job> listOfJobs);
+	
+	public void startSimulation(ArrayList<Job> listOfJobs, ArrayList<ArrayList<Double>> breakdownList,
+			ArrayList<ArrayList<Double>> repairList, ArrayList<Integer> breakdownCounterList) {
+		
+	}
 
 	public abstract boolean isEndSimulation();
 }

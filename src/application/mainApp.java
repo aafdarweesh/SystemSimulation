@@ -1,8 +1,10 @@
 package application;
 
 import generator.PacketGenerator;
+import generator.ServerBreakdownGenerator;
 import simulationModels.MMC;
 import simulationModels.MMCL;
+import simulationModels.MMCLBreakdown;
 
 public class mainApp {
 
@@ -33,6 +35,9 @@ public class mainApp {
 		// pG.DisplayListOfJobs();
 		pG.GeneratePackets(100, 3, 2);
 		
+		ServerBreakdownGenerator sBG = new ServerBreakdownGenerator(3, 60, 10);//each 1 hour there is a failure, and repair time is 10mins
+		sBG.GenerateBreakdownAndRepair();
+		
 		MMC trial = new MMC(3, 100);
 		trial.startSimulation(pG.RetrieveListOfJobs());
 		trial.showResult();
@@ -41,6 +46,10 @@ public class mainApp {
 		MMCL trial2 = new MMCL(3, 100, 2);
 		trial2.startSimulation(pG.RetrieveListOfJobs());
 		trial2.showResult();
+		
+		MMCLBreakdown trial3 = new MMCLBreakdown(3, 100, 2);
+		trial3.startSimulation(pG.RetrieveListOfJobs(), sBG.RetrieveBreakdowns(), sBG.RetrieveRepair(), sBG.breakdownCounter());
+		trial3.showResult();
 		
 		
 		pG.DisplayListOfJobs();
