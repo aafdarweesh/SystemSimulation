@@ -4,128 +4,119 @@ import java.util.ArrayList;
 
 import components.Job;
 import components.Server;
-import randomGens.ExponentialGenerator;
 
-public class MMC extends Simulation{
+public class MMC extends Simulation {
 
 	public MMC(double meanInterArrivalTime, double meanSerivceTime, double numberOfServers, double numberOfJobs) {
 		super(meanInterArrivalTime, meanSerivceTime, numberOfServers, numberOfJobs);
-		for(int i=0;i<numberOfServers; i++) {
+		for (int i = 0; i < numberOfServers; i++) {
 			servers.add(new Server());
 		}
 	}
 
-	
 	public void showResult() {
 		System.out.println("Showing the results : " + servedJobs.size() + "\n");
 		for (int i = 0; i < servedJobs.size(); ++i) {
-			System.out.println("Job ID : " + Integer.toString(servedJobs.get(i).getId()) + ",The waiting time is : " + Double.toString(servedJobs.get(i).getTimeInQueue()) + 
-					" arrival: " + servedJobs.get(i).getArrivalTime() + " service start, end: " + servedJobs.get(i).getServiceStartTime() + 
-					", " + servedJobs.get(i).getServiceEndTime());
+			System.out.println("Job ID : " + Integer.toString(servedJobs.get(i).getId()) + ",The waiting time is : "
+					+ Double.toString(servedJobs.get(i).getTimeInQueue()) + " arrival: "
+					+ servedJobs.get(i).getArrivalTime() + " service start, end: "
+					+ servedJobs.get(i).getServiceStartTime() + ", " + servedJobs.get(i).getServiceEndTime());
 		}
-		
+
 	}
 
-
 	@Override
-	public void startSimulation() {
+	public void startSimulation(ArrayList<Job> listOfJobs) {
 		this.clock = 0;
-		int event;
-		int[] serverStatus; //holds index of first empty server and the number of empty servers
+		int nextServerID;
+		int[] serverStatus; // holds index of first empty server and the number of empty servers
 		NextEvent nextEvent = new NextEvent();
-		ExponentialGenerator exponentialGenerator = new ExponentialGenerator(meanSerivceTime);
+
+		int currentJobID = 0;
+		double nextJobArrivalTime = 0;
 		
-		
-		while(!isEndSimulation()) {
+		//System.out.println("Start Simulation Function !!!");
+
+		while (!isEndSimulation()) {
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
-			
-			event = nextEvent.getNextEvent();
-			clock = nextEvent.nextEventclock;
-			
-			
-			if(event == -1) {
-				Job temp = new Job(clock, exponentialGenerator.generate());
-				queue.add(temp);
-				serverStatus = checkServers();
-				if(serverStatus[0]!=-1) {
-					temp.setServiceStartTime(clock);
-					servers.get(serverStatus[0]).addJob(temp, clock);
+			//System.out.println("Iteration!");
+
+			nextServerID = nextEvent.getNextEvent(); // the id of the next server going to finish
+			if (currentJobID < listOfJobs.size())
+				nextJobArrivalTime = listOfJobs.get(currentJobID).getArrivalTime(); // The time of the next job arrival
+			else
+				nextJobArrivalTime = Double.POSITIVE_INFINITY;
+
+			// Check the status of all servers
+			serverStatus = checkServers();
+
+			// in case all servers are empty and there is a job going to arrive
+			// in case the following server is not empty (as in case of all empty servers
+			// this condition will be satisfied)
+			// or there is more than one job with the same arrival time, so compare it with
+			// the clock time
+			if ((nextJobArrivalTime < Double.POSITIVE_INFINITY && serverStatus[1] == servers.size())
+					|| (servers.get(nextServerID).isEmptyStatus() == false
+							&& nextJobArrivalTime <= servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (nextJobArrivalTime == this.clock)) {
+
+				this.clock = nextJobArrivalTime; // Change the time
+
+				queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
+
+				currentJobID++;
+				//System.out.println("Arrival");
+
+			} else if ((servers.get(nextServerID).isEmptyStatus() == false
+					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
+
+				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
+
+				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
+
+				servers.get(nextServerID).finishJob();
+				//System.out.println("Departure");
+			}
+
+			// Push the jobs waiting in the queue to the servers if they are Idel
+			int i = 0;
+			while (queue.size() > 0 && i < servers.size()) {
+				// If the server is empty and there is a job, add the job to the server
+				if (servers.get(i).isEmptyStatus() == true) {
+					servers.get(i).addJob(queue.get(0), this.clock); // current system time
 					queue.remove(0);
 				}
-				if(serverStatus[1]==numberOfServers) {
-					nextEvent.nextServiceEnd = temp.getServiceEndTime();
-					nextEvent.serverIndex = serverStatus[0];
-				}
-			}
-			else {
-				
-				servedJobs.add(servers.get(event).getJobBeingServed());
-				servers.get(event).finishJob();
-				serverStatus = checkServers();
-				if(queue.size()>0) {
-					int min = 0;
-					for(int i=0; i<queue.size(); i++) {
-						if(queue.get(i).getArrivalTime()<queue.get(min).getArrivalTime())
-							min = i;
-					}
-					System.out.println(queue.get(min).getId());
-					queue.get(min).setServiceStartTime(clock);
-					servers.get(event).addJob(queue.get(min), clock);
-					queue.remove(min);
-				}
+				//System.out.println("Push from the queue");
+				i++;
 			}
 		}
 	}
-	
+
 	@Override
 	public boolean isEndSimulation() {
-		if(servedJobs.size() == numberOfJobs)
+		if (servedJobs.size() == numberOfJobs)
 			return true;
 		return false;
 	}
-	
-	private class NextEvent{
-		double nextEventclock;
-		double nextArrivalTime;
-		double nextServiceEnd;
-		int serverIndex;
-		ExponentialGenerator exponentialGenerator;
-		
-		public NextEvent() {
-			exponentialGenerator = new ExponentialGenerator(meanInterArrivalTime);
-			nextArrivalTime = 0;
-			nextServiceEnd = -1;
-			serverIndex = 56564646;
-		}
-		
+
+	private class NextEvent {
+
 		public int getNextEvent() {
-		
-			int nextEvent;
-			
-			if(nextServiceEnd==-1 || nextArrivalTime < nextServiceEnd) {
-				nextEventclock = nextArrivalTime;
-				nextArrivalTime = nextEventclock + exponentialGenerator.generate();
-				nextEvent = -1;
-			}
-			else {
-				nextEventclock = nextServiceEnd;
-				nextEvent = serverIndex;
-				nextServiceEnd = -1;
-				int i = 0;
-				for(Server server: servers) {
-					if(!server.isEmptyStatus() && i!=nextEvent) {
-						double currentServerServiceEnd = server.getJobBeingServed().getServiceEndTime();
-						if(nextServiceEnd==-1 || currentServerServiceEnd < nextServiceEnd) {
-							nextServiceEnd = currentServerServiceEnd;
-							serverIndex = i;
-						}	
-					}
-					i++;
+
+			int nextEvent = 0;
+			double minimumTime = Double.POSITIVE_INFINITY;
+			int i = 0;
+			while (i < servers.size()) {
+				if (servers.get(i).isEmptyStatus() == false
+						&& servers.get(i).getJobBeingServed().getServiceEndTime() < minimumTime) {
+					nextEvent = i;
 				}
+				i++;
 			}
-			
+
 			return nextEvent;
 		}
 	}
