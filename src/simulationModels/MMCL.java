@@ -5,13 +5,20 @@ import java.util.ArrayList;
 import components.Job;
 import components.Server;
 
-public class MMC extends Simulation {
+public class MMCL extends Simulation {
 
-	public MMC(double numberOfServers, double numberOfJobs) {
+	protected int queueLength = 0;
+
+	public MMCL(double numberOfServers, double numberOfJobs, int queueLength) {
 		super(numberOfServers, numberOfJobs);
+
+		// initialize the servers
 		for (int i = 0; i < numberOfServers; i++) {
 			servers.add(new Server());
 		}
+		// change the queue length
+		this.queueLength = queueLength;
+
 	}
 
 	public void showResult() {
@@ -23,6 +30,13 @@ public class MMC extends Simulation {
 					+ servedJobs.get(i).getServiceStartTime() + ", " + servedJobs.get(i).getServiceEndTime());
 		}
 
+		System.out.println("List of dropped jobs :" + droppedJobs.size() + "\n");
+		for (int i = 0; i < droppedJobs.size(); ++i) {
+			System.out.println("Job ID : " + Integer.toString(droppedJobs.get(i).getId()) + ",The waiting time is : "
+					+ Double.toString(droppedJobs.get(i).getTimeInQueue()) + " arrival: "
+					+ droppedJobs.get(i).getArrivalTime() + " service start, end: "
+					+ droppedJobs.get(i).getServiceStartTime() + ", " + droppedJobs.get(i).getServiceEndTime());
+		}
 	}
 
 	@Override
@@ -64,12 +78,19 @@ public class MMC extends Simulation {
 
 				this.clock = nextJobArrivalTime; // Change the time
 
-				queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
-
+				// Check that the length of the queue is not exceeded
+				if (queue.size() >= queueLength) {
+					droppedJobs.add(listOfJobs.get(currentJobID)); // add the new job to the dropped list
+					System.out.println("Job (dropped): " + Integer.toString(currentJobID));
+				} else {
+					queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
+					System.out.println("Job (queue): " + Integer.toString(currentJobID));
+				}
 				currentJobID++;
 				// System.out.println("Arrival");
 
-			} else // Look to get the next job after checking the queue, and current idel servers
+			} else
+			// Look to get the next job after checking the queue, and current idel servers
 			if ((servers.get(nextServerID).isEmptyStatus() == false
 					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
 					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
@@ -81,13 +102,13 @@ public class MMC extends Simulation {
 				servers.get(nextServerID).finishJob();
 				// System.out.println("Departure");
 			}
-
 			// Push the jobs waiting in the queue to the servers if they are Idel
 			int i = 0;
 			while (queue.size() > 0 && i < servers.size()) {
 				// If the server is empty and there is a job, add the job to the server
 				if (servers.get(i).isEmptyStatus() == true) {
 					servers.get(i).addJob(queue.get(0), this.clock); // current system time
+					System.out.println("Job (toServer): " + Integer.toString(queue.get(0).getId()));
 					queue.remove(0);
 				}
 				// System.out.println("Push from the queue");
@@ -99,12 +120,12 @@ public class MMC extends Simulation {
 
 	@Override
 	public boolean isEndSimulation() {
-		if (servedJobs.size() == numberOfJobs)
+		if (servedJobs.size() + droppedJobs.size() == numberOfJobs)
 			return true;
 		return false;
 	}
 
-	private class NextEvent {
+	class NextEvent {
 
 		public int getNextEvent() {
 

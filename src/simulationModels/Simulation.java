@@ -7,39 +7,38 @@ import components.Server;
 
 public abstract class Simulation {
 
-	protected double meanInterArrivalTime;
-	protected double meanSerivceTime;
 	protected double numberOfServers;
 	protected double numberOfJobs;
 	protected ArrayList<Job> queue;
 	protected ArrayList<Server> servers;
 	protected ArrayList<Job> servedJobs;
+	protected ArrayList<Job> droppedJobs;
 	protected double clock;
 
-	public Simulation(double meanInterArrivalTime, double meanSerivceTime, double numberOfServers, double numberOfJobs) {
-		this.meanInterArrivalTime = meanInterArrivalTime;
-		this.meanSerivceTime = meanSerivceTime;
+	public Simulation(double numberOfServers, double numberOfJobs) {
+		
 		this.numberOfServers = numberOfServers;
 		this.numberOfJobs = numberOfJobs;
 		this.queue = new ArrayList<>();
 		this.servers = new ArrayList<>();
 		this.servedJobs = new ArrayList<>();
+		this.droppedJobs = new ArrayList<>();
 	}
 
-	public double getMeanInterArrivalTime() {
-		return meanInterArrivalTime;
+	public ArrayList<Job> getDroppedJobs() {
+		return droppedJobs;
 	}
 
-	public void setMeanInterArrivalTime(double meanInterArrivalTime) {
-		this.meanInterArrivalTime = meanInterArrivalTime;
+	public void setDroppedJobs(ArrayList<Job> droppedJobs) {
+		this.droppedJobs = droppedJobs;
 	}
 
-	public double getMeanSerivceTime() {
-		return meanSerivceTime;
+	public double getClock() {
+		return clock;
 	}
 
-	public void setMeanSerivceTime(double meanSerivceTime) {
-		this.meanSerivceTime = meanSerivceTime;
+	public void setClock(double clock) {
+		this.clock = clock;
 	}
 
 	public double getNumberOfServers() {
@@ -95,6 +94,11 @@ public abstract class Simulation {
 	}
 
 	public abstract void startSimulation(ArrayList<Job> listOfJobs);
+	
+	public void startSimulation(ArrayList<Job> listOfJobs, ArrayList<ArrayList<Double>> breakdownList,
+			ArrayList<ArrayList<Double>> repairList, ArrayList<Integer> breakdownCounterList) {
+		
+	}
 
 	public abstract boolean isEndSimulation();
 }

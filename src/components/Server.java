@@ -3,8 +3,8 @@ package components;
 public class Server {
 	private static double nextID = 0;
 	private double id;
-	private int timeLastBreakDown = -1;
-	private int timeToRepair = -1;
+	private double timeLastBreakDown = -1;
+	private double timeToRepair = -1;
 	private boolean emptyStatus; //True is empty, false is not empty 
 	private Job jobBeingServed;
 	
@@ -34,7 +34,7 @@ public class Server {
 	}
 	
 	//BreakDown status
-	public boolean isBrokeDown(int currentTime) {
+	public boolean isBrokeDown(double currentTime) {
 		return currentTime >= (this.timeLastBreakDown + this.timeToRepair) ? false : true;
 	}
 	
@@ -46,10 +46,10 @@ public class Server {
 		this.jobBeingServed = null; //drop the job (garbage collector will delete it)
 	}
 	//Breakdown
-	public void BreakDown(int breakdownTime, int repairTime) {
+	public void BreakDown(double breakdownTime, double repairTime) {
 		this.timeLastBreakDown = breakdownTime;
 		this.timeToRepair = repairTime;
-		this.emptyStatus = false;
+		this.emptyStatus = true;
 		this.jobBeingServed = null; //drop the job (garbage collector will delete it)
 	}
 
@@ -61,7 +61,7 @@ public class Server {
 		this.id = id;
 	}
 
-	public int getTimeLastBreakDown() {
+	public double getTimeLastBreakDown() {
 		return timeLastBreakDown;
 	}
 
@@ -69,7 +69,7 @@ public class Server {
 		this.timeLastBreakDown = timeLastBreakDown;
 	}
 
-	public int getTimeToRepair() {
+	public double getTimeToRepair() {
 		return timeToRepair;
 	}
 

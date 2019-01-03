@@ -17,9 +17,9 @@ public class PacketGenerator {
 	 * @param numberOfPackets
 	 * @param meanInterArrivalTime
 	 * @param meanSerivceTime
-	 * @return List of Jobs generated
+	 * 
 	 */
-	public ArrayList<Job> GeneratePackets(int numberOfPackets, int meanInterArrivalTime, int meanSerivceTime) {
+	public void GeneratePackets(int numberOfPackets, int meanInterArrivalTime, int meanSerivceTime) {
 		ExponentialGenerator exponentialGeneratorServiceTime = new ExponentialGenerator(meanSerivceTime);
 		ExponentialGenerator exponentialGeneratorArrivalTime = new ExponentialGenerator(meanInterArrivalTime);
 
@@ -42,8 +42,24 @@ public class PacketGenerator {
 			this.listOfJobs.add(j);
 		}
 
-		return this.listOfJobs;
 	}
+	
+	//Adding a copy of the list as not to modify the same list while comparing different Systems
+	public ArrayList<Job> RetrieveListOfJobs(){
+		ArrayList<Job> listOfJobsCopy = new ArrayList<>();
+		for(int i = 0; i < this.listOfJobs.size(); ++i) {
+			listOfJobsCopy.add(new Job(listOfJobs.get(i).getArrivalTime(), listOfJobs.get(i).getServiceTime()));
+			listOfJobsCopy.get(i).setId(i);
+		}
+		
+		return listOfJobsCopy;
+	}
+	
+	public Job makeJobCopy(Job j) {
+		Job copy = new Job(j.getArrivalTime(), j.getServiceTime());
+		return copy;
+	}
+	
 
 	public void DisplayListOfJobs() {
 		System.out.println("List of Jobs generated : " + this.listOfJobs.size());
