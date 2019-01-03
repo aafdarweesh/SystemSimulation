@@ -31,9 +31,9 @@ public class ServerBreakdownGenerator {
 	//Generate breakdowns and repairs for 5 iterations
 	public void GenerateBreakdownAndRepair() {
 		for (int i = 0; i < numberOfServer; ++i) {
-			breakdownList.add(new ArrayList<Double>(20));
-			repairList.add(new ArrayList<Double>(20));
-			for (int j = 0; j < 20; ++j) {
+			breakdownList.add(new ArrayList<Double>(100));
+			repairList.add(new ArrayList<Double>(100));
+			for (int j = 0; j < 100; ++j) {
 				if(j != 0) {
 					breakdownList.get(i).add(this.meanBreakdown + exponentialGeneratorBreakdown.generate());
 					repairList.get(i).add(exponentialGeneratorRepair.generate());
@@ -49,9 +49,9 @@ public class ServerBreakdownGenerator {
 	public ArrayList<ArrayList<Double>> RetrieveBreakdowns(){
 		ArrayList<ArrayList<Double>> breakdownCopy = new ArrayList<ArrayList<Double>>();
 		for (int i = 0; i < numberOfServer; ++i) {
-			breakdownCopy.add(new ArrayList<Double>(20));
+			breakdownCopy.add(new ArrayList<Double>(100));
 			//repairList.add(new ArrayList<Double>());
-			for (int j = 0; j < 20; ++j) {
+			for (int j = 0; j < 100; ++j) {
 				breakdownCopy.get(i).add(breakdownList.get(i).get(j));
 				//repairList.get(i).add(exponentialGeneratorRepair.generate());
 			}
@@ -63,8 +63,8 @@ public class ServerBreakdownGenerator {
 	public ArrayList<ArrayList<Double>> RetrieveRepair(){
 		ArrayList<ArrayList<Double>> repairCopy = new ArrayList<ArrayList<Double>>();
 		for (int i = 0; i < numberOfServer; ++i) {
-			repairCopy.add(new ArrayList<Double>(20));
-			for (int j = 0; j < 20; ++j) {
+			repairCopy.add(new ArrayList<Double>(100));
+			for (int j = 0; j < 100; ++j) {
 				repairCopy.get(i).add(repairList.get(i).get(j));
 			}
 		}
