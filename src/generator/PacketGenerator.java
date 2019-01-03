@@ -19,7 +19,7 @@ public class PacketGenerator {
 	 * @param meanSerivceTime
 	 * 
 	 */
-	public void GeneratePackets(int numberOfPackets, int meanInterArrivalTime, int meanSerivceTime) {
+	public void GeneratePackets(int numberOfPackets, double meanInterArrivalTime, double meanSerivceTime) {
 		ExponentialGenerator exponentialGeneratorServiceTime = new ExponentialGenerator(meanSerivceTime);
 		ExponentialGenerator exponentialGeneratorArrivalTime = new ExponentialGenerator(meanInterArrivalTime);
 

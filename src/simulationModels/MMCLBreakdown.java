@@ -9,8 +9,8 @@ public class MMCLBreakdown extends Simulation {
 
 	int queueLength;
 
-	public MMCLBreakdown(double numberOfServers, double numberOfJobs, int queueLength) {
-		super(numberOfServers, numberOfJobs);
+	public MMCLBreakdown(int numberOfServers, int queueLength) {
+		super(numberOfServers);
 
 		// initialize the servers
 		for (int i = 0; i < numberOfServers; i++) {
@@ -52,7 +52,7 @@ public class MMCLBreakdown extends Simulation {
 
 		// System.out.println("Start Simulation Function !!!");
 
-		while (!isEndSimulation()) {
+		while (servedJobs.size() + droppedJobs.size() < listOfJobs.size()) {
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
@@ -156,12 +156,12 @@ public class MMCLBreakdown extends Simulation {
 		}
 	}
 
-	@Override
+	/*
 	public boolean isEndSimulation() {
 		if (servedJobs.size() + droppedJobs.size() == numberOfJobs)
 			return true;
 		return false;
-	}
+	}*/
 
 	class NextEvent {
 
@@ -189,6 +189,10 @@ public class MMCLBreakdown extends Simulation {
 	public void startSimulation(ArrayList<Job> listOfJobs) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public double getNumberOfJobsSoFar() {
+		return servedJobs.size() + droppedJobs.size();
 	}
 
 }

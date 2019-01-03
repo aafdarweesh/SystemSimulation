@@ -4,20 +4,21 @@ import java.util.ArrayList;
 
 import components.Job;
 import components.Server;
+import randomGens.ExponentialGenerator;
 
 public class MMCL extends Simulation {
 
-	protected int queueLength = 0;
+	protected int maxLength;
 
-	public MMCL(double numberOfServers, double numberOfJobs, int queueLength) {
-		super(numberOfServers, numberOfJobs);
+	public MMCL(int numberOfServers, int queueLength) {
+		super(numberOfServers);
 
 		// initialize the servers
 		for (int i = 0; i < numberOfServers; i++) {
 			servers.add(new Server());
 		}
 		// change the queue length
-		this.queueLength = queueLength;
+		this.maxLength = queueLength;
 
 	}
 
@@ -41,23 +42,24 @@ public class MMCL extends Simulation {
 
 	@Override
 	public void startSimulation(ArrayList<Job> listOfJobs) {
+		reset();
 		this.clock = 0;
+		double previousClock = 0;
 		int nextServerID;
 		int[] serverStatus; // holds index of first empty server and the number of empty servers
-		NextEvent nextEvent = new NextEvent();
 
 		int currentJobID = 0;
 		double nextJobArrivalTime = 0;
 
 		// System.out.println("Start Simulation Function !!!");
 
-		while (!isEndSimulation()) {
+		while (servedJobs.size() + droppedJobs.size() < listOfJobs.size()) {
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
 			// System.out.println("Iteration!");
 
-			nextServerID = nextEvent.getNextEvent(); // the id of the next server going to finish
+			nextServerID = getNextServer(); // the id of the next server going to finish
 			if (currentJobID < listOfJobs.size())
 				nextJobArrivalTime = listOfJobs.get(currentJobID).getArrivalTime(); // The time of the next job arrival
 			else
@@ -76,15 +78,17 @@ public class MMCL extends Simulation {
 							&& nextJobArrivalTime <= servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
 					|| (nextJobArrivalTime == this.clock)) {
 
+				previousClock = clock;
 				this.clock = nextJobArrivalTime; // Change the time
+				updateStateAndServerTimes(clock, previousClock);
 
 				// Check that the length of the queue is not exceeded
-				if (queue.size() >= queueLength) {
+				if (queue.size() + (numberOfServers - serverStatus[1]) >= maxLength) {
 					droppedJobs.add(listOfJobs.get(currentJobID)); // add the new job to the dropped list
-					System.out.println("Job (dropped): " + Integer.toString(currentJobID));
+					//System.out.println("Job (dropped): " + Integer.toString(currentJobID));
 				} else {
 					queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
-					System.out.println("Job (queue): " + Integer.toString(currentJobID));
+					//System.out.println("Job (queue): " + Integer.toString(currentJobID));
 				}
 				currentJobID++;
 				// System.out.println("Arrival");
@@ -95,20 +99,22 @@ public class MMCL extends Simulation {
 					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
 					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
 
+				previousClock = clock;
 				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
+				updateStateAndServerTimes(clock, previousClock);
 
 				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
 
 				servers.get(nextServerID).finishJob();
 				// System.out.println("Departure");
 			}
-			// Push the jobs waiting in the queue to the servers if they are Idel
+			// Push the jobs waiting in the queue to the servers if they are Idle
 			int i = 0;
 			while (queue.size() > 0 && i < servers.size()) {
 				// If the server is empty and there is a job, add the job to the server
 				if (servers.get(i).isEmptyStatus() == true) {
 					servers.get(i).addJob(queue.get(0), this.clock); // current system time
-					System.out.println("Job (toServer): " + Integer.toString(queue.get(0).getId()));
+					//System.out.println("Job (toServer): " + Integer.toString(queue.get(0).getId()));
 					queue.remove(0);
 				}
 				// System.out.println("Push from the queue");
@@ -117,33 +123,135 @@ public class MMCL extends Simulation {
 
 		}
 	}
+	
+	public void startSimulation(double meanInterArrivalTime, double meanServiceTime, int numberOfJobs) {
+		reset();
+		ExponentialGenerator interArrivalTimeGenerator = new ExponentialGenerator(meanInterArrivalTime);
+		ExponentialGenerator sericeTimeGenerator = new ExponentialGenerator(meanServiceTime);
+		this.clock = 0;
+		double previousClock = 0;
+		int nextServerID;
+		int[] serverStatus; // holds index of first empty server and the number of empty servers
 
-	@Override
-	public boolean isEndSimulation() {
+		int jobCount = 0;
+
+		// System.out.println("Start Simulation Function !!!");
+		
+		Job nextJob = new Job(0.0, sericeTimeGenerator.generate());
+		double nextJobArrivalTime = 0;
+		jobCount++;
+
+		while (servedJobs.size() + droppedJobs.size() < numberOfJobs) {
+			
+			/**
+			 * Need to know what is the next event and what time it is.
+			 */
+			// System.out.println("Iteration!");
+
+			nextServerID = getNextServer(); // the id of the next server going to finish
+			if (jobCount <= numberOfJobs)
+				nextJobArrivalTime = nextJob.getArrivalTime(); // The time of the next job arrival
+			else
+				nextJobArrivalTime = Double.POSITIVE_INFINITY;
+
+			// Check the status of all servers
+			serverStatus = checkServers();
+
+			// in case all servers are empty and there is a job going to arrive
+			// in case the following server is not empty (as in case of all empty servers
+			// this condition will be satisfied)
+			// or there is more than one job with the same arrival time, so compare it with
+			// the clock time
+			if ((nextJobArrivalTime < Double.POSITIVE_INFINITY && serverStatus[1] == servers.size())
+					|| (servers.get(nextServerID).isEmptyStatus() == false
+							&& nextJobArrivalTime <= servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (nextJobArrivalTime == this.clock)) {
+
+				previousClock = clock;
+				this.clock = nextJobArrivalTime; // Change the time
+				updateStateAndServerTimes(clock, previousClock);
+				
+				// Check that the length of the queue is not exceeded
+				if (queue.size() + (numberOfServers - serverStatus[1]) >= maxLength) {
+					droppedJobs.add(nextJob); // add the new job to the dropped list
+					//System.out.println("Job (dropped): " + Integer.toString(currentJobID));
+				} else {
+					queue.add(nextJob); // add the new arrived job to the queue
+					//System.out.println("Job (queue): " + Integer.toString(currentJobID));
+				}
+				
+				nextJob = new Job(clock + interArrivalTimeGenerator.generate(), sericeTimeGenerator.generate());
+				jobCount++;
+				// System.out.println("Arrival");
+
+			} else // Look to get the next job after checking the queue, and current idle servers
+			if ((servers.get(nextServerID).isEmptyStatus() == false
+					&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (servers.get(nextServerID).getJobBeingServed().getServiceEndTime() == this.clock)) {
+
+				previousClock = clock;
+				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
+				updateStateAndServerTimes(clock, previousClock);
+
+				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
+
+				servers.get(nextServerID).finishJob();
+				// System.out.println("Departure");
+			}
+
+			// Push the jobs waiting in the queue to the servers if they are Idle
+			int i = 0;
+			while (queue.size() > 0 && i < servers.size()) {
+				// If the server is empty and there is a job, add the job to the server
+				if (servers.get(i).isEmptyStatus() == true) {
+					servers.get(i).addJob(queue.get(0), this.clock); // current system time
+					queue.remove(0);
+				}
+				// System.out.println("Push from the queue");
+				i++;
+			}
+			
+                                         
+		}
+	}
+
+	/*public boolean isEndSimulation() {
 		if (servedJobs.size() + droppedJobs.size() == numberOfJobs)
 			return true;
 		return false;
-	}
+	}*/
 
-	class NextEvent {
+	
+	public int getNextServer() {
 
-		public int getNextEvent() {
-
-			int nextEvent = 0;
-			double minimumTime = Double.POSITIVE_INFINITY;
-			int i = 0;
-			while (i < servers.size()) {
-				if (servers.get(i).isEmptyStatus() == false
-						&& servers.get(i).getJobBeingServed().getServiceEndTime() < minimumTime) {
-					nextEvent = i;
-					minimumTime = servers.get(i).getJobBeingServed().getServiceEndTime();
-				}
-				i++;
+		int nextServer = 0;
+		double minimumTime = Double.POSITIVE_INFINITY;
+		int i = 0;
+		while (i < servers.size()) {
+			if (servers.get(i).isEmptyStatus() == false
+					&& servers.get(i).getJobBeingServed().getServiceEndTime() < minimumTime) {
+				nextServer = i;
+				minimumTime = servers.get(i).getJobBeingServed().getServiceEndTime();
 			}
-
-			return nextEvent;
-
+			i++;
 		}
+
+		return nextServer;
+
+	}
+	
+	
+	public double getNumberOfJobsSoFar() {
+		return servedJobs.size() + droppedJobs.size();
+	}
+	
+	public void calculateMetrics(queues_analytical.Queue theoritical) {
+		System.out.println("---------------- Simulation Results ----------------\n");
+		int total =  droppedJobs.size() + servedJobs.size();
+		System.out.println("Total Number of Jobs Encountered: " + total);
+		System.out.println("Number of Dropped Jobs: " + droppedJobs.size());
+		System.out.println("Dropping Probability: " + droppedJobs.size() / (double)total);
+		super.calculateMetrics(theoritical);
 	}
 
 }

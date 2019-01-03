@@ -7,8 +7,8 @@ import components.Server;
 
 public class MMCBreakdown extends Simulation {
 
-	public MMCBreakdown(double numberOfServers, double numberOfJobs) {
-		super(numberOfServers, numberOfJobs);
+	public MMCBreakdown(int numberOfServers) {
+		super(numberOfServers);
 
 		// initialize the servers
 		for (int i = 0; i < numberOfServers; i++) {
@@ -49,7 +49,7 @@ public class MMCBreakdown extends Simulation {
 
 		// System.out.println("Start Simulation Function !!!");
 
-		while (!isEndSimulation()) {
+		while (servedJobs.size() + droppedJobs.size() < listOfJobs.size()) {
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
@@ -147,12 +147,12 @@ public class MMCBreakdown extends Simulation {
 		}
 	}
 
-	@Override
+	/*
 	public boolean isEndSimulation() {
 		if (servedJobs.size() + droppedJobs.size() == numberOfJobs)
 			return true;
 		return false;
-	}
+	}*/
 
 	class NextEvent {
 
@@ -180,6 +180,10 @@ public class MMCBreakdown extends Simulation {
 	public void startSimulation(ArrayList<Job> listOfJobs) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public double getNumberOfJobsSoFar() {
+		return servedJobs.size() + droppedJobs.size();
 	}
 
 }

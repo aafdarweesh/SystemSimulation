@@ -1,4 +1,4 @@
-package simulationModels;
+package queues_CI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,8 +6,10 @@ import java.util.HashMap;
 import components.Job;
 import components.Server;
 
-public abstract class Simulation {
+public abstract class Simulation_CI {
 
+	protected double meanInterArrivalTime;
+	protected double meanServiceTime;
 	protected int numberOfServers;
 	protected ArrayList<Job> queue;
 	protected ArrayList<Server> servers;
@@ -16,9 +18,12 @@ public abstract class Simulation {
 	protected double clock;
 	protected HashMap<Integer, Double> stateTimes;
 	protected double[] serverTimes;
+	protected ArrayList<Double> meanQueueLengthRecords;
 
-	public Simulation(int numberOfServers) {
+	public Simulation_CI(double meanInterArrivalTime, double meanServiceTime, int numberOfServers) {
 		
+		this.meanInterArrivalTime = meanInterArrivalTime;
+		this.meanServiceTime = meanServiceTime;
 		this.numberOfServers = numberOfServers;
 		this.queue = new ArrayList<>();
 		this.servers = new ArrayList<>();
@@ -26,6 +31,7 @@ public abstract class Simulation {
 		this.droppedJobs = new ArrayList<>();
 		this.stateTimes = new HashMap<>();
 		this.serverTimes = new double[numberOfServers];
+		this.meanQueueLengthRecords = new ArrayList<>();
 	}
 
 	public ArrayList<Job> getDroppedJobs() {
@@ -88,12 +94,14 @@ public abstract class Simulation {
 		return new int[] {emptyServerIndex, numberOfEmpty};
 	}
 
-	public abstract void startSimulation(ArrayList<Job> listOfJobs);
+	public abstract void startSimulation();
 	
 	public void startSimulation(ArrayList<Job> listOfJobs, ArrayList<ArrayList<Double>> breakdownList,
 			ArrayList<ArrayList<Double>> repairList, ArrayList<Integer> breakdownCounterList) {
 		
 	}
+
+	public abstract boolean isEndSimulation();
 	
 	public void reset() {
 		servedJobs.clear();
@@ -126,9 +134,10 @@ public abstract class Simulation {
 				serverTimes[j] += clock - previousClock;
 			}
 		}
+		
 	}
 	
-public abstract double getNumberOfJobsSoFar();
+	public abstract double getNumberOfJobsSoFar();
 	
 	public double getMeanQueueLength() {
 		if (clock>0) {
