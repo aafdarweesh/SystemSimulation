@@ -115,6 +115,7 @@ public class MMC extends Simulation {
 				if (servers.get(i).isEmptyStatus() == false
 						&& servers.get(i).getJobBeingServed().getServiceEndTime() < minimumTime) {
 					nextEvent = i;
+					minimumTime = nextEvent;
 				}
 				i++;
 			}
