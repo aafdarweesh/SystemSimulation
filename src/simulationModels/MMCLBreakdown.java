@@ -174,7 +174,7 @@ public class MMCLBreakdown extends Simulation {
 				if (servers.get(i).isBrokeDown(clock) == false && servers.get(i).isEmptyStatus() == false
 						&& servers.get(i).getJobBeingServed().getServiceEndTime() < minimumTime) {
 					nextEvent = i;
-					minimumTime = nextEvent;
+					minimumTime = servers.get(i).getJobBeingServed().getServiceEndTime();
 				}
 				i++;
 			}
