@@ -12,6 +12,8 @@ public class ServerBreakdownGenerator {
 	ExponentialGenerator exponentialGeneratorBreakdown;
 	ExponentialGenerator exponentialGeneratorRepair;
 	int numberOfServer;
+	
+	double meanBreakdown;
 
 	public ServerBreakdownGenerator(int numberOfServers, double meanBreakdown, double meanRepair) {
 
@@ -21,6 +23,8 @@ public class ServerBreakdownGenerator {
 
 		this.breakdownList = new ArrayList<ArrayList<Double>>();
 		this.repairList = new ArrayList<ArrayList<Double>>();
+		
+		this.meanBreakdown = meanBreakdown;
 
 	}
 
@@ -31,8 +35,8 @@ public class ServerBreakdownGenerator {
 			repairList.add(new ArrayList<Double>(20));
 			for (int j = 0; j < 20; ++j) {
 				if(j != 0) {
-					breakdownList.get(i).add(breakdownList.get(i).get(j-1) + exponentialGeneratorBreakdown.generate());
-					repairList.get(i).add(repairList.get(i).get(j-1) + exponentialGeneratorRepair.generate());
+					breakdownList.get(i).add(this.meanBreakdown + exponentialGeneratorBreakdown.generate());
+					repairList.get(i).add(exponentialGeneratorRepair.generate());
 				}else {
 					breakdownList.get(i).add(exponentialGeneratorBreakdown.generate());
 					repairList.get(i).add(exponentialGeneratorRepair.generate());
