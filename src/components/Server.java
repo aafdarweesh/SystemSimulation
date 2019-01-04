@@ -39,14 +39,14 @@ public class Server {
 	}
 	
 	//Repaired
-	public void Repair() {
+	public void repair() {
 		this.timeLastBreakDown = -1;
 		this.timeToRepair = -1;
 		this.emptyStatus = true;
 		this.jobBeingServed = null; //drop the job (garbage collector will delete it)
 	}
 	//Breakdown
-	public void BreakDown(double breakdownTime, double repairTime) {
+	public void breakDown(double breakdownTime, double repairTime) {
 		this.timeLastBreakDown = breakdownTime;
 		this.timeToRepair = repairTime;
 		this.emptyStatus = true;
@@ -91,6 +91,10 @@ public class Server {
 
 	public void setJobBeingServed(Job jobBeingServed) {
 		this.jobBeingServed = jobBeingServed;
+	}
+	
+	public double getRepairedTime() {
+		return timeLastBreakDown + timeToRepair;
 	}
 	
 	

@@ -235,6 +235,7 @@ public class MMC extends Simulation {
 	
 	public void calculateMetrics(queues_analytical.Queue theoritical) {
 		System.out.println("---------------- Simulation Results ----------------");
+		System.out.println("Total Running Time: " + clock);
 		super.calculateMetrics(theoritical);
 	}
 	

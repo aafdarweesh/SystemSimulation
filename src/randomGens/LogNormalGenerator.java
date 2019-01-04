@@ -1,8 +1,15 @@
 package randomGens;
 
+
 public class LogNormalGenerator extends RandomGenerator {
 
 	private double normalMean, normalVariance;
+	public LogNormalGenerator(double mean) {
+		this.setMean(mean);
+		this.setVariance((Math.pow(Math.E, 0.03) - 1) * (Math.pow(Math.E, 0.03 + 2*normalMean)));
+		normalMean = Math.log(mean) - getVariance()/2;
+		normalVariance = 0.03; //approximates to a variance of 1 
+	}
 	public LogNormalGenerator(double normalMean, double normalVariance) {
 		this.normalMean = normalMean;
 		this.normalVariance = normalVariance;

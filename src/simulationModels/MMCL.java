@@ -247,6 +247,7 @@ public class MMCL extends Simulation {
 	
 	public void calculateMetrics(queues_analytical.Queue theoritical) {
 		System.out.println("---------------- Simulation Results ----------------\n");
+		System.out.println("Total Running Time: " + clock);
 		int total =  droppedJobs.size() + servedJobs.size();
 		System.out.println("Total Number of Jobs Encountered: " + total);
 		System.out.println("Number of Dropped Jobs: " + droppedJobs.size());
