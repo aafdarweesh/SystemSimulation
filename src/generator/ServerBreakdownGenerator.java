@@ -35,7 +35,7 @@ public class ServerBreakdownGenerator {
 			repairList.add(new ArrayList<Double>(100));
 			for (int j = 0; j < 100; ++j) {
 				if(j != 0) {
-					breakdownList.get(i).add(this.meanBreakdown + exponentialGeneratorBreakdown.generate());
+					breakdownList.get(i).add(this.breakdownList.get(i).get(j-1) + exponentialGeneratorBreakdown.generate());
 					repairList.get(i).add(exponentialGeneratorRepair.generate());
 				}else {
 					breakdownList.get(i).add(exponentialGeneratorBreakdown.generate());

@@ -1,6 +1,11 @@
 package randomGens;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import draw.Histogram;
+import draw.StdDraw;
+import draw.StdStats;
 
 public class TestGenerator {
 	
@@ -35,7 +40,7 @@ public class TestGenerator {
 		int histogramSize = (int)Math.sqrt(sampleSize);
 		int[] histogram = new int[histogramSize];
 		double histogramIntervalWidth = (max-min)/histogramSize;
-		for(double value:samples)
+		/*for(double value:samples)
 		{
 			if(value < max)
 				histogram[(int)((value-min-Math.ulp(value))/histogramIntervalWidth)] += 1;
@@ -49,6 +54,14 @@ public class TestGenerator {
 			for(int j=0; j<stars; j++)
 				System.out.print("*");
 			System.out.println();
+		}*/
+		
+		Histogram graphical = new Histogram(histogramSize);
+		for (double value:samples) {
+			if(value < max)
+				graphical.addDataPoint((int)((value-min-Math.ulp(value))/histogramIntervalWidth));
 		}
+		StdDraw.setCanvasSize(500, 400);
+        graphical.draw();
 	}
 }

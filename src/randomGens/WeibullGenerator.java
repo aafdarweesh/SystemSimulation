@@ -8,8 +8,8 @@ public class WeibullGenerator extends RandomGenerator {
 	
 	public WeibullGenerator(double mean) {
 		this.setMean(mean);
-		this.alpha = mean / 0.89297951;  //nu = 0, beta ~= 3
-		this.beta = 3;
+		this.alpha = mean / 0.8862269;  //nu = 0, beta ~= 2
+		this.beta = 2;
 		this.nu = 0;
 		this.setVariance(alpha*alpha * (Gamma.gamma(2/beta + 1) - Math.sqrt(Gamma.gamma(1/beta + 1))));
 	}

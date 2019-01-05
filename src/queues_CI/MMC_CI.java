@@ -141,7 +141,7 @@ public class MMC_CI extends Simulation_CI {
 			sd = Math.sqrt(tempSum/(meanQueueLengthRecords.size() - 1));
 			
 			double offset = 2.576 * (sd/Math.sqrt(meanQueueLengthRecords.size()));
-			if(offset <= 0.025*average)
+			if(offset <= 0.005*average)
 				return true;
 			else
 				return false;

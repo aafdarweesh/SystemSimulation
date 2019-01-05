@@ -40,7 +40,7 @@ public class MMCBreakdown extends Simulation {
 		}
 	}
 
-	@Override
+	
 	public void startSimulation(ArrayList<Job> listOfJobs, ArrayList<ArrayList<Double>> breakdownList,
 			ArrayList<ArrayList<Double>> repairList, ArrayList<Integer> breakdownCounterList) {
 		this.clock = 0;
@@ -261,7 +261,8 @@ public class MMCBreakdown extends Simulation {
 				if(breakDownServer!=-1) {
 					if(!servers.get(breakDownServer).isEmptyStatus())
 						droppedJobs.add(servers.get(breakDownServer).getJobBeingServed());
-					servers.get(breakDownServer).breakDown(nextBreakDown, timeToRepairGenerator.generate());
+					servers.get(breakDownServer).breakDown(nextBreakDown, getRepairManFreeTime() + timeToRepairGenerator.generate());
+					
 				}
 				
 				nextBreakDown = clock + timeBetweenFailuresGenerator.generate();
@@ -313,13 +314,6 @@ public class MMCBreakdown extends Simulation {
 
 	}
 	
-
-
-	@Override
-	public void startSimulation(ArrayList<Job> listOfJobs) {
-		// TODO Auto-generated method stub
-
-	}
 	
 	public double getNumberOfJobsSoFar() {
 		return servedJobs.size() + droppedJobs.size();

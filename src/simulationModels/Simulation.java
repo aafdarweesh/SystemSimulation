@@ -18,6 +18,7 @@ public abstract class Simulation {
 	protected HashMap<Integer, Double> stateTimes;
 	protected double[] serverTimes;
 	protected double[] serverDownTimes;
+	protected boolean multipleRepairMen;
 
 	public Simulation(int numberOfServers) {
 		
@@ -29,6 +30,7 @@ public abstract class Simulation {
 		this.stateTimes = new HashMap<>();
 		this.serverTimes = new double[numberOfServers];
 		this.serverDownTimes = new double[numberOfServers];
+		this.multipleRepairMen = false; //not used in all simulation types (only the ones with breakdowns)
 	}
 
 	public ArrayList<Job> getDroppedJobs() {
@@ -91,13 +93,6 @@ public abstract class Simulation {
 		return new int[] {emptyServerIndex, numberOfEmpty};
 	}
 
-	public abstract void startSimulation(ArrayList<Job> listOfJobs);
-	
-	public void startSimulation(ArrayList<Job> listOfJobs, ArrayList<ArrayList<Double>> breakdownList,
-			ArrayList<ArrayList<Double>> repairList, ArrayList<Integer> breakdownCounterList) {
-		
-	}
-	
 	public void reset() {
 		servedJobs.clear();
 		queue.clear();
@@ -389,6 +384,30 @@ public void calculateMetrics(queues_analytical.Queue theoritical) {
 			int rnd = new Random().nextInt(functionalServers.size());
 		    return functionalServers.get(rnd);
 		}
+	}
+	
+	public boolean isMultipleRepairMen() {
+		return multipleRepairMen;
+	}
+
+	public void setMultipleRepairMen(boolean multipleRepairMen) {
+		this.multipleRepairMen = multipleRepairMen;
+	}
+	
+	public double getRepairManFreeTime() {
+		if(isMultipleRepairMen())
+			return 0; //there is a repair man available all the time
+		double freeTime = 0; //now
+		int i = 0;
+		while (i < servers.size()) {
+			if (servers.get(i).isBrokeDown(clock)) {
+				if(servers.get(i).getTimeToRepair() > freeTime)
+					freeTime = servers.get(i).getTimeToRepair();
+			}
+			i++;
+		}
+		
+		return freeTime;
 	}
 
 }
