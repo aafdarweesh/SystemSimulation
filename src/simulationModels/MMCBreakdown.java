@@ -1,9 +1,5 @@
 package simulationModels;
 
-import java.util.ArrayList;
-import java.util.Random;
-
-import org.w3c.dom.css.ElementCSSInlineStyle;
 
 import components.Job;
 import components.Server;
@@ -22,7 +18,7 @@ public class MMCBreakdown extends Simulation {
 		}
 	}
 
-	public void showResult() {
+	public void showLogs() {
 		System.out.println("Showing the results : " + servedJobs.size() + "\n");
 		for (int i = 0; i < servedJobs.size(); ++i) {
 			System.out.println("Job ID : " + Integer.toString(servedJobs.get(i).getId()) + ",The waiting time is : "
@@ -41,115 +37,7 @@ public class MMCBreakdown extends Simulation {
 	}
 
 	
-	public void startSimulation(ArrayList<Job> listOfJobs, ArrayList<ArrayList<Double>> breakdownList,
-			ArrayList<ArrayList<Double>> repairList, ArrayList<Integer> breakdownCounterList) {
-		this.clock = 0;
-		int nextServerID;
-		int[] serverStatus; // holds index of first empty server and the number of empty servers
-		int currentJobID = 0;
-		double nextJobArrivalTime = 0;
-
-		double previousClock = 0;
-
-		// System.out.println("Start Simulation Function !!!");
-
-		while (servedJobs.size() + droppedJobs.size() < listOfJobs.size()) {
-			/**
-			 * Need to know what is the next event and what time it is.
-			 */
-			// System.out.println("Iteration!");
-
-			nextServerID = getNextServer(); // the id of the next server going to finish
-			if (currentJobID < listOfJobs.size())
-				nextJobArrivalTime = listOfJobs.get(currentJobID).getArrivalTime(); // The time of the next job arrival
-			else
-				nextJobArrivalTime = Double.POSITIVE_INFINITY;
-
-			// breakdown and repair loop (i is the server ID)
-			for (int i = 0; i < servers.size(); ++i) {
-				// The server is down and should have repair or it is empty
-				if (servers.get(i).isBrokeDown(this.clock) == false && servers.get(i).isEmptyStatus() == true) {
-					// either has a repair or null
-					servers.get(i).repair();
-				}
-				// the current server should have breakdown
-				if (servers.get(i).isBrokeDown(this.clock) == false
-						&& breakdownList.get(i).get(breakdownCounterList.get(i)) <= this.clock) {
-					if (servers.get(i).isEmptyStatus() == false) {
-						droppedJobs.add(servers.get(i).getJobBeingServed());// drop the job to the dropped list
-					}
-					servers.get(i).breakDown(breakdownList.get(i).get(breakdownCounterList.get(i)),
-							repairList.get(i).get(breakdownCounterList.get(i)));
-					breakdownCounterList.set(i, breakdownCounterList.get(i) + 1);// get the following breakdown for that
-																					// server
-				}
-			}
-
-			// Check the status of all servers
-			serverStatus = checkServers();
-
-			// in case all servers are empty and there is a job going to arrive
-			// in case the following server is not empty (as in case of all empty servers
-			// this condition will be satisfied)
-			// or there is more than one job with the same arrival time, so compare it with
-			// the clock time
-			if ((nextJobArrivalTime < Double.POSITIVE_INFINITY && serverStatus[1] == servers.size())
-					|| (servers.get(nextServerID).isBrokeDown(this.clock) == false
-							&& servers.get(nextServerID).isEmptyStatus() == false
-							&& nextJobArrivalTime <= servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
-					|| (nextJobArrivalTime == this.clock)) {
-
-				this.clock = nextJobArrivalTime; // Change the time
-
-				queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
-				// System.out.println("Job (queue): " + Integer.toString(currentJobID));
-
-				currentJobID++;
-				System.out.println("Arrival");
-
-			}
-			// Look to get the next job after checking the queue, and current idle servers
-			if (servers.get(nextServerID).isBrokeDown(this.clock) == false
-					&& ((servers.get(nextServerID).isEmptyStatus() == false
-							&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
-							|| (servers.get(nextServerID).isEmptyStatus() == false && servers.get(nextServerID)
-									.getJobBeingServed().getServiceEndTime() == this.clock))) {
-
-				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
-
-				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
-
-				servers.get(nextServerID).finishJob();
-				System.out.println("Departure");
-			}
-			// Push the jobs waiting in the queue to the servers if they are Idel
-			{
-				int i = 0;
-				while (queue.size() > 0 && i < servers.size()) {
-					// If the server is empty and there is a job, add the job to the server
-					// if the server is not down as well
-					if (servers.get(i).isBrokeDown(this.clock) == false && servers.get(i).isEmptyStatus() == true) {
-						servers.get(i).addJob(queue.get(0), this.clock); // current system time
-						System.out.println("Job (toServer): " + Integer.toString(queue.get(0).getId()));
-						queue.remove(0);
-					}
-					System.out.println("Push from the queue");
-					i++;
-				}
-			}
-
-			// as for server breakdown there might be a problem (considering all possible
-			// cases "there might be infinite loop for time changing"), so implementing a
-			// counter to keep track of infinite loops and continue with the following
-			// events
-			if (this.clock == previousClock) {
-				this.clock++;
-			} else {
-				previousClock = this.clock;
-			}
-
-		}
-	}
+	
 	
 	public void startSimulation(double meanInterArrivalTime, double meanServiceTime, double meanTimeBetweenFailures,
 			double meanTimeToRepair, int numberOfJobs) {
@@ -170,7 +58,7 @@ public class MMCBreakdown extends Simulation {
 		
 		Job nextJob = new Job(0.0, sericeTimeGenerator.generate());
 		double nextJobArrivalTime = 0;
-		double nextBreakDown = clock + timeBetweenFailuresGenerator.generate();
+		double nextBreakDown = clock + timeBetweenFailuresGenerator.generate(); //first breakdown
 		jobCount++;
 		
 		double nextServiceEnd;
@@ -192,14 +80,16 @@ public class MMCBreakdown extends Simulation {
 			if (jobCount <= numberOfJobs)
 				nextJobArrivalTime = nextJob.getArrivalTime(); // The time of the next job arrival
 			else
-				nextJobArrivalTime = Double.POSITIVE_INFINITY;
+				nextJobArrivalTime = Double.POSITIVE_INFINITY; // no more jobs
 			
 			nextServerID_repair = getNextRepair();
 			if(nextServerID_repair == -1)
-				nextRepairEnd = Double.POSITIVE_INFINITY;
+				nextRepairEnd = Double.POSITIVE_INFINITY; //no repairs pending
 			else
-				nextRepairEnd = servers.get(nextServerID_repair).getRepairedTime();
+				nextRepairEnd = servers.get(nextServerID_repair).getRepairedTime(); //the next repair
 			
+			//warning: the following booleans are not mutually exclusive, the first true one is considered (check if elses below)
+			//we are deciding which kind of event is next
 			boolean arrivalCheck = (nextJobArrivalTime < nextServiceEnd) && (nextJobArrivalTime < nextRepairEnd) &&
 					(nextJobArrivalTime < nextBreakDown) && (nextJobArrivalTime < Double.POSITIVE_INFINITY) || 
 					(nextJobArrivalTime == clock);
@@ -227,7 +117,7 @@ public class MMCBreakdown extends Simulation {
 
 				previousClock = clock;
 				this.clock = nextJobArrivalTime; // Change the time
-				updateStateAndServerTimes_unreliable(clock, previousClock);
+				updateStateAndServerTimes_unreliable(clock, previousClock); //update the records
 				
 				queue.add(nextJob); // add the new arrived job to the queue
 				nextJob = new Job(clock + interArrivalTimeGenerator.generate(), sericeTimeGenerator.generate());
@@ -238,36 +128,36 @@ public class MMCBreakdown extends Simulation {
 
 				previousClock = clock;
 				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
-				updateStateAndServerTimes_unreliable(clock, previousClock);
+				updateStateAndServerTimes_unreliable(clock, previousClock); //update the records
 
-				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
+				servedJobs.add(servers.get(nextServerID).getJobBeingServed()); //store the finished job
 
-				servers.get(nextServerID).finishJob();
+				servers.get(nextServerID).finishJob(); //make the server free again
 				// System.out.println("Departure");
 			} else if (repairCheck) {
 				
 				previousClock = clock;
 				this.clock = servers.get(nextServerID_repair).getRepairedTime();
-				updateStateAndServerTimes_unreliable(clock, previousClock);
+				updateStateAndServerTimes_unreliable(clock, previousClock); //update the records
 						
 				servers.get(nextServerID_repair).repair();
 				
 			} else if (breakDownCheck) {
 				previousClock = clock;
 				this.clock = nextBreakDown;
-				updateStateAndServerTimes_unreliable(clock, previousClock);
+				updateStateAndServerTimes_unreliable(clock, previousClock); //update the records
 				
-				int breakDownServer = chooseBreakDownServer();
-				if(breakDownServer!=-1) {
-					if(!servers.get(breakDownServer).isEmptyStatus())
-						droppedJobs.add(servers.get(breakDownServer).getJobBeingServed());
+				int breakDownServer = chooseBreakDownServer(); //choose a server to break randomly
+				if(breakDownServer!=-1) { //if there is at least one server that is not broken down
+					if(!servers.get(breakDownServer).isEmptyStatus()) 
+						droppedJobs.add(servers.get(breakDownServer).getJobBeingServed()); //drop the job being served
 					servers.get(breakDownServer).breakDown(nextBreakDown, getRepairManFreeTime() + timeToRepairGenerator.generate());
-					
+					//break down the server and generate a repair time
 				}
 				
 				nextBreakDown = clock + timeBetweenFailuresGenerator.generate();
 					
-			} else {
+			} else { //dead code, just for testing
 				System.out.println("This should never happen!");
 			}
 
@@ -287,33 +177,6 @@ public class MMCBreakdown extends Simulation {
 		}
 	}
 
-	/*
-	public boolean isEndSimulation() {
-		if (servedJobs.size() + droppedJobs.size() == numberOfJobs)
-			return true;
-		return false;
-	}*/
-
-	
-
-	public int getNextServer() {
-
-		int nextServer = 0;
-		double minimumTime = Double.POSITIVE_INFINITY;
-		int i = 0;
-		while (i < servers.size()) {
-			if (servers.get(i).isBrokeDown(clock) == false && servers.get(i).isEmptyStatus() == false
-					&& servers.get(i).getJobBeingServed().getServiceEndTime() < minimumTime) {
-				nextServer = i;
-				minimumTime = servers.get(i).getJobBeingServed().getServiceEndTime();
-			}
-			i++;
-		}
-
-		return nextServer;
-
-	}
-	
 	
 	public double getNumberOfJobsSoFar() {
 		return servedJobs.size() + droppedJobs.size();

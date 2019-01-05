@@ -14,27 +14,13 @@ public class MMC extends Simulation {
 		}
 	}
 
-	public void showResult() {
+	public void showLogs() {
 		System.out.println("Showing the results : " + servedJobs.size() + "\n");
 		for (int i = 0; i < servedJobs.size(); ++i) {
 			System.out.println("Job ID : " + Integer.toString(servedJobs.get(i).getId()) + ",The waiting time is : "
 					+ Double.toString(servedJobs.get(i).getTimeInQueue()) + " arrival: "
 					+ servedJobs.get(i).getArrivalTime() + " service start, end: "
 					+ servedJobs.get(i).getServiceStartTime() + ", " + servedJobs.get(i).getServiceEndTime());
-		}
-		
-		double time=0;
-		System.out.println("States: " + stateTimes.keySet().size());
-		for(int key: stateTimes.keySet()) {
-			System.out.println(key + ": " + stateTimes.get(key));
-			time += stateTimes.get(key); 
-		}
-		
-		System.out.println("Last clock: " + clock + ", calculated time: " + time);
-		
-		System.out.println("Servers working times: ");
-		for (int i = 0; i < serverTimes.length; ++i) {
-			System.out.println(i + ": " + serverTimes[i]);
 		}
 	}
 
@@ -49,14 +35,14 @@ public class MMC extends Simulation {
 		int currentJobID = 0;
 		double nextJobArrivalTime = 0;
 
-		// System.out.println("Start Simulation Function !!!");
+		
 
 		while (servedJobs.size() < listOfJobs.size()) {
 			
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
-			// System.out.println("Iteration!");
+			
 
 			nextServerID = getNextServer(); // the id of the next server going to finish
 			if (currentJobID < listOfJobs.size())
@@ -84,7 +70,7 @@ public class MMC extends Simulation {
 				queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
 
 				currentJobID++;
-				// System.out.println("Arrival");
+				
 
 			} else // Look to get the next job after checking the queue, and current idel servers
 			if ((servers.get(nextServerID).isEmptyStatus() == false
@@ -98,7 +84,7 @@ public class MMC extends Simulation {
 				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
 
 				servers.get(nextServerID).finishJob();
-				// System.out.println("Departure");
+				
 			}
 
 			// Push the jobs waiting in the queue to the servers if they are Idle
@@ -109,7 +95,7 @@ public class MMC extends Simulation {
 					servers.get(i).addJob(queue.get(0), this.clock); // current system time
 					queue.remove(0);
 				}
-				// System.out.println("Push from the queue");
+				
 				i++;
 			}
 			
@@ -129,7 +115,7 @@ public class MMC extends Simulation {
 
 		int jobCount = 0;
 
-		// System.out.println("Start Simulation Function !!!");
+		
 		
 		Job nextJob = new Job(0.0, sericeTimeGenerator.generate());
 		double nextJobArrivalTime = 0;
@@ -140,7 +126,7 @@ public class MMC extends Simulation {
 			/**
 			 * Need to know what is the next event and what time it is.
 			 */
-			// System.out.println("Iteration!");
+			
 
 			nextServerID = getNextServer(); // the id of the next server going to finish
 			if (jobCount <= numberOfJobs)
@@ -168,7 +154,7 @@ public class MMC extends Simulation {
 				queue.add(nextJob); // add the new arrived job to the queue
 				nextJob = new Job(clock + interArrivalTimeGenerator.generate(), sericeTimeGenerator.generate());
 				jobCount++;
-				// System.out.println("Arrival");
+				
 
 			} else // Look to get the next job after checking the queue, and current idle servers
 			if ((servers.get(nextServerID).isEmptyStatus() == false
@@ -182,7 +168,7 @@ public class MMC extends Simulation {
 				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
 
 				servers.get(nextServerID).finishJob();
-				// System.out.println("Departure");
+				
 			}
 
 			// Push the jobs waiting in the queue to the servers if they are Idle
@@ -193,7 +179,7 @@ public class MMC extends Simulation {
 					servers.get(i).addJob(queue.get(0), this.clock); // current system time
 					queue.remove(0);
 				}
-				// System.out.println("Push from the queue");
+				
 				i++;
 			}
 			
@@ -225,13 +211,6 @@ public class MMC extends Simulation {
 		return servedJobs.size();
 	}
 	
-	public void reset() {
-		super.reset();
-		servers.clear();
-		for (int i = 0; i < numberOfServers; i++) {
-			servers.add(new Server());
-		}
-	}
 	
 	public void calculateMetrics(queues_analytical.Queue theoritical) {
 		System.out.println("---------------- Simulation Results ----------------");

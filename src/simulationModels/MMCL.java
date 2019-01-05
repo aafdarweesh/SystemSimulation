@@ -8,7 +8,7 @@ import randomGens.ExponentialGenerator;
 
 public class MMCL extends Simulation {
 
-	protected int maxLength;
+	private int maxLength;
 
 	public MMCL(int numberOfServers, int queueLength) {
 		super(numberOfServers);
@@ -22,7 +22,7 @@ public class MMCL extends Simulation {
 
 	}
 
-	public void showResult() {
+	public void showLogs() {
 		System.out.println("Showing the results : " + servedJobs.size() + "\n");
 		for (int i = 0; i < servedJobs.size(); ++i) {
 			System.out.println("Job ID : " + Integer.toString(servedJobs.get(i).getId()) + ",The waiting time is : "
@@ -82,7 +82,7 @@ public class MMCL extends Simulation {
 				this.clock = nextJobArrivalTime; // Change the time
 				updateStateAndServerTimes(clock, previousClock);
 
-				// Check that the length of the queue is not exceeded
+				// Check that the maximum length is not exceeded
 				if (queue.size() + (numberOfServers - serverStatus[1]) >= maxLength) {
 					droppedJobs.add(listOfJobs.get(currentJobID)); // add the new job to the dropped list
 					//System.out.println("Job (dropped): " + Integer.toString(currentJobID));
@@ -171,7 +171,7 @@ public class MMCL extends Simulation {
 				this.clock = nextJobArrivalTime; // Change the time
 				updateStateAndServerTimes(clock, previousClock);
 				
-				// Check that the length of the queue is not exceeded
+				// Check that the maximum length is not exceeded
 				if (queue.size() + (numberOfServers - serverStatus[1]) >= maxLength) {
 					droppedJobs.add(nextJob); // add the new job to the dropped list
 					//System.out.println("Job (dropped): " + Integer.toString(currentJobID));

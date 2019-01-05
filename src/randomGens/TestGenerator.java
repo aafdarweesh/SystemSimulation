@@ -1,11 +1,8 @@
 package randomGens;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import draw.Histogram;
 import draw.StdDraw;
-import draw.StdStats;
 
 public class TestGenerator {
 	

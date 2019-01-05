@@ -15,10 +15,10 @@ public abstract class Simulation {
 	protected ArrayList<Job> servedJobs;
 	protected ArrayList<Job> droppedJobs;
 	protected double clock;
-	protected HashMap<Integer, Double> stateTimes;
-	protected double[] serverTimes;
-	protected double[] serverDownTimes;
-	protected boolean multipleRepairMen;
+	protected HashMap<Integer, Double> stateTimes; //holds the total time spent in a certain state
+	protected double[] serverTimes; //holds the total busy time for a server
+	protected double[] serverDownTimes; //holds the total down time of a server (only used for unreliable systems)
+	protected boolean multipleRepairMen; //not used in all simulation types (only used for unreliable systems)
 
 	public Simulation(int numberOfServers) {
 		
@@ -30,7 +30,7 @@ public abstract class Simulation {
 		this.stateTimes = new HashMap<>();
 		this.serverTimes = new double[numberOfServers];
 		this.serverDownTimes = new double[numberOfServers];
-		this.multipleRepairMen = false; //not used in all simulation types (only the ones with breakdowns)
+		this.multipleRepairMen = false; //a single repairman by default (only used for unreliable systems)
 	}
 
 	public ArrayList<Job> getDroppedJobs() {
@@ -81,6 +81,7 @@ public abstract class Simulation {
 		this.servedJobs = servedJobs;
 	}
 
+	//returns two numbers: the index of the first free server, and the number of free servers
 	public int[] checkServers() {
 		int emptyServerIndex = -1;
 		int numberOfEmpty = 0;
@@ -93,6 +94,7 @@ public abstract class Simulation {
 		return new int[] {emptyServerIndex, numberOfEmpty};
 	}
 
+	//resets everything in the simulation
 	public void reset() {
 		servedJobs.clear();
 		queue.clear();
@@ -104,8 +106,13 @@ public abstract class Simulation {
 		for(int i=0; i<serverTimes.length; i++) {
 			serverDownTimes[i] = 0.0;
 		}
+		servers.clear();
+		for (int i = 0; i < numberOfServers; i++) {
+			servers.add(new Server());
+		}
 	}
 	
+	//gets number of jobs getting served + number of jobs in the queue
 	public int getNumberOfJobsInSystem() {
 		int jobsBeingServed = 0;
 		for(int i=0; i<servers.size(); i++) {
@@ -115,6 +122,7 @@ public abstract class Simulation {
 		return jobsBeingServed + queue.size();
 	}
 	
+	//updates the records of the state times and the server busy time after a given period
 	public void updateStateAndServerTimes(double clock, double previousClock) {
 		int state = getNumberOfJobsInSystem();
 		if(stateTimes.containsKey(state))
@@ -129,6 +137,7 @@ public abstract class Simulation {
 		}
 	}
 	
+	//same as the previous one, but also updates the server down times
 	public void updateStateAndServerTimes_unreliable(double clock, double previousClock) {
 		updateStateAndServerTimes(clock, previousClock);
 		
@@ -139,7 +148,8 @@ public abstract class Simulation {
 		}
 	}
 	
-public abstract double getNumberOfJobsSoFar();
+	//gets number of jobs encountered so far	
+	public abstract double getNumberOfJobsSoFar();
 	
 	public double getMeanQueueLength() {
 		if (clock>0) {
@@ -155,7 +165,8 @@ public abstract double getNumberOfJobsSoFar();
 			return 0;
 	}
 	
-public void calculateMetrics(queues_analytical.Queue theoritical) {
+	//calculates the simulation results, compares them with the analytical, and then displays them
+	public void calculateMetrics(queues_analytical.Queue theoritical) {
 		
 		theoritical.calculateAll();
 		double totalWaitingTime = 0;
@@ -243,7 +254,8 @@ public void calculateMetrics(queues_analytical.Queue theoritical) {
 		System.out.println("\n---------------- Theoritical Results ----------------\n");
 		theoritical.viewPerformance();
 	}
-
+	
+	//same as above but no comparison for unreliable systems
 	public void calculateMetrics_unreliable() {
 		System.out.println("---------------- Simulation Results ----------------\n");
 		System.out.println("Total Running Time: " + clock);
@@ -333,6 +345,7 @@ public void calculateMetrics(queues_analytical.Queue theoritical) {
 		
 	}
 	
+	//gets next service end time
 	public int getNextServer_modified() {
 
 		int nextServer = -1;
@@ -351,6 +364,7 @@ public void calculateMetrics(queues_analytical.Queue theoritical) {
 
 	}
 	
+	//gets next repair time
 	public int getNextRepair() {
 
 		int nextServer = -1;
@@ -369,6 +383,7 @@ public void calculateMetrics(queues_analytical.Queue theoritical) {
 
 	}
 	
+	//chooses a server randomly (if there is one available) to breakdown
 	public int chooseBreakDownServer() {
 		ArrayList<Integer> functionalServers = new ArrayList<Integer>();
 		int i = 0;
@@ -394,6 +409,7 @@ public void calculateMetrics(queues_analytical.Queue theoritical) {
 		this.multipleRepairMen = multipleRepairMen;
 	}
 	
+	//gets the time when a repairman will be available
 	public double getRepairManFreeTime() {
 		if(isMultipleRepairMen())
 			return 0; //there is a repair man available all the time

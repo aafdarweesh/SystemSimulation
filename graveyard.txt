@@ -1,0 +1,355 @@
+public void startSimulation(ArrayList<Job> listOfJobs, ArrayList<ArrayList<Double>> breakdownList,
+			ArrayList<ArrayList<Double>> repairList, ArrayList<Integer> breakdownCounterList) {
+		this.clock = 0;
+		int nextServerID;
+		int[] serverStatus; // holds index of first empty server and the number of empty servers
+		int currentJobID = 0;
+		double nextJobArrivalTime = 0;
+
+		double previousClock = 0;
+
+		// System.out.println("Start Simulation Function !!!");
+
+		while (servedJobs.size() + droppedJobs.size() < listOfJobs.size()) {
+			/**
+			 * Need to know what is the next event and what time it is.
+			 */
+			// System.out.println("Iteration!");
+
+			nextServerID = getNextEvent(); // the id of the next server going to finish
+			if (currentJobID < listOfJobs.size())
+				nextJobArrivalTime = listOfJobs.get(currentJobID).getArrivalTime(); // The time of the next job arrival
+			else
+				nextJobArrivalTime = Double.POSITIVE_INFINITY;
+
+			// breakdown and repair loop (i is the server ID)
+			for (int i = 0; i < servers.size(); ++i) {
+				// The server is down and should have repair or it is empty
+				if (servers.get(i).isBrokeDown(this.clock) == false && servers.get(i).isEmptyStatus() == true) {
+					// either has a repair or null
+					servers.get(i).repair();
+				}
+				// the current server should have breakdown
+				if (servers.get(i).isBrokeDown(this.clock) == false
+						&& breakdownList.get(i).get(breakdownCounterList.get(i)) <= this.clock) {
+					if (servers.get(i).isEmptyStatus() == false) {
+						droppedJobs.add(servers.get(i).getJobBeingServed());// drop the job to the dropped list
+					}
+					servers.get(i).breakDown(breakdownList.get(i).get(breakdownCounterList.get(i)),
+							repairList.get(i).get(breakdownCounterList.get(i)));
+					breakdownCounterList.set(i, breakdownCounterList.get(i) + 1);// get the following breakdown for that
+																					// server
+				}
+			}
+
+			// Check the status of all servers
+			serverStatus = checkServers();
+
+			// in case all servers are empty and there is a job going to arrive
+			// in case the following server is not empty (as in case of all empty servers
+			// this condition will be satisfied)
+			// or there is more than one job with the same arrival time, so compare it with
+			// the clock time
+			if ((nextJobArrivalTime < Double.POSITIVE_INFINITY && serverStatus[1] == servers.size())
+					|| (servers.get(nextServerID).isBrokeDown(this.clock) == false
+							&& servers.get(nextServerID).isEmptyStatus() == false
+							&& nextJobArrivalTime <= servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (nextJobArrivalTime == this.clock)) {
+
+				this.clock = nextJobArrivalTime; // Change the time
+
+				// Check that the length of the queue is not exceeded
+				if (queue.size() >= maxLength) {
+					droppedJobs.add(listOfJobs.get(currentJobID)); // add the new job to the dropped list
+					// System.out.println("Job (dropped): " + Integer.toString(currentJobID));
+				} else {
+					queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
+					// System.out.println("Job (queue): " + Integer.toString(currentJobID));
+				}
+				currentJobID++;
+				System.out.println("Arrival");
+
+			}
+			// Look to get the next job after checking the queue, and current idel servers
+			if (servers.get(nextServerID).isBrokeDown(this.clock) == false
+					&& ((servers.get(nextServerID).isEmptyStatus() == false
+							&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+							|| (servers.get(nextServerID).isEmptyStatus() == false && servers.get(nextServerID)
+									.getJobBeingServed().getServiceEndTime() == this.clock))) {
+
+				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
+
+				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
+
+				servers.get(nextServerID).finishJob();
+				System.out.println("Departure");
+			}
+			// Push the jobs waiting in the queue to the servers if they are Idel
+			{
+				int i = 0;
+				while (queue.size() > 0 && i < servers.size()) {
+					// If the server is empty and there is a job, add the job to the server
+					// if the server is not down as well
+					if (servers.get(i).isBrokeDown(this.clock) == false && servers.get(i).isEmptyStatus() == true) {
+						servers.get(i).addJob(queue.get(0), this.clock); // current system time
+						System.out.println("Job (toServer): " + Integer.toString(queue.get(0).getId()));
+						queue.remove(0);
+					}
+					System.out.println("Push from the queue");
+					i++;
+				}
+			}
+
+			// as for server breakdown there might be a problem (considering all possible
+			// cases "there might be infinite loop for time changing"), so implementing a
+			// counter to keep track of infinite loops and continue with the following
+			// events
+			if (this.clock == previousClock) {
+				this.clock++;
+			} else {
+				previousClock = this.clock;
+			}
+
+			
+		}
+	}
+	
+	public int getNextEvent() {
+
+		int nextEvent = 0;
+		double minimumTime = Double.POSITIVE_INFINITY;
+		int i = 0;
+		while (i < servers.size()) {
+			if (servers.get(i).isBrokeDown(clock) == false && servers.get(i).isEmptyStatus() == false
+					&& servers.get(i).getJobBeingServed().getServiceEndTime() < minimumTime) {
+				nextEvent = i;
+				minimumTime = servers.get(i).getJobBeingServed().getServiceEndTime();
+			}
+			i++;
+		}
+
+		return nextEvent;
+
+	}
+	
+	public void startSimulation(ArrayList<Job> listOfJobs, ArrayList<ArrayList<Double>> breakdownList,
+			ArrayList<ArrayList<Double>> repairList, ArrayList<Integer> breakdownCounterList) {
+		this.clock = 0;
+		int nextServerID;
+		int[] serverStatus; // holds index of first empty server and the number of empty servers
+		int currentJobID = 0;
+		double nextJobArrivalTime = 0;
+
+		double previousClock = 0;
+
+		// System.out.println("Start Simulation Function !!!");
+
+		while (servedJobs.size() + droppedJobs.size() < listOfJobs.size()) {
+			/**
+			 * Need to know what is the next event and what time it is.
+			 */
+			// System.out.println("Iteration!");
+
+			nextServerID = getNextServer(); // the id of the next server going to finish
+			if (currentJobID < listOfJobs.size())
+				nextJobArrivalTime = listOfJobs.get(currentJobID).getArrivalTime(); // The time of the next job arrival
+			else
+				nextJobArrivalTime = Double.POSITIVE_INFINITY;
+
+			// breakdown and repair loop (i is the server ID)
+			for (int i = 0; i < servers.size(); ++i) {
+				// The server is down and should have repair or it is empty
+				if (servers.get(i).isBrokeDown(this.clock) == false && servers.get(i).isEmptyStatus() == true) {
+					// either has a repair or null
+					servers.get(i).repair();
+				}
+				// the current server should have breakdown
+				if (servers.get(i).isBrokeDown(this.clock) == false
+						&& breakdownList.get(i).get(breakdownCounterList.get(i)) <= this.clock) {
+					if (servers.get(i).isEmptyStatus() == false) {
+						droppedJobs.add(servers.get(i).getJobBeingServed());// drop the job to the dropped list
+					}
+					servers.get(i).breakDown(breakdownList.get(i).get(breakdownCounterList.get(i)),
+							repairList.get(i).get(breakdownCounterList.get(i)));
+					breakdownCounterList.set(i, breakdownCounterList.get(i) + 1);// get the following breakdown for that
+																					// server
+				}
+			}
+
+			// Check the status of all servers
+			serverStatus = checkServers();
+
+			// in case all servers are empty and there is a job going to arrive
+			// in case the following server is not empty (as in case of all empty servers
+			// this condition will be satisfied)
+			// or there is more than one job with the same arrival time, so compare it with
+			// the clock time
+			if ((nextJobArrivalTime < Double.POSITIVE_INFINITY && serverStatus[1] == servers.size())
+					|| (servers.get(nextServerID).isBrokeDown(this.clock) == false
+							&& servers.get(nextServerID).isEmptyStatus() == false
+							&& nextJobArrivalTime <= servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+					|| (nextJobArrivalTime == this.clock)) {
+
+				this.clock = nextJobArrivalTime; // Change the time
+
+				queue.add(listOfJobs.get(currentJobID)); // add the new arrived job to the queue
+				// System.out.println("Job (queue): " + Integer.toString(currentJobID));
+
+				currentJobID++;
+				System.out.println("Arrival");
+
+			}
+			// Look to get the next job after checking the queue, and current idle servers
+			if (servers.get(nextServerID).isBrokeDown(this.clock) == false
+					&& ((servers.get(nextServerID).isEmptyStatus() == false
+							&& nextJobArrivalTime > servers.get(nextServerID).getJobBeingServed().getServiceEndTime())
+							|| (servers.get(nextServerID).isEmptyStatus() == false && servers.get(nextServerID)
+									.getJobBeingServed().getServiceEndTime() == this.clock))) {
+
+				this.clock = servers.get(nextServerID).getJobBeingServed().getServiceEndTime();
+
+				servedJobs.add(servers.get(nextServerID).getJobBeingServed());
+
+				servers.get(nextServerID).finishJob();
+				System.out.println("Departure");
+			}
+			// Push the jobs waiting in the queue to the servers if they are Idel
+			{
+				int i = 0;
+				while (queue.size() > 0 && i < servers.size()) {
+					// If the server is empty and there is a job, add the job to the server
+					// if the server is not down as well
+					if (servers.get(i).isBrokeDown(this.clock) == false && servers.get(i).isEmptyStatus() == true) {
+						servers.get(i).addJob(queue.get(0), this.clock); // current system time
+						System.out.println("Job (toServer): " + Integer.toString(queue.get(0).getId()));
+						queue.remove(0);
+					}
+					System.out.println("Push from the queue");
+					i++;
+				}
+			}
+
+			// as for server breakdown there might be a problem (considering all possible
+			// cases "there might be infinite loop for time changing"), so implementing a
+			// counter to keep track of infinite loops and continue with the following
+			// events
+			if (this.clock == previousClock) {
+				this.clock++;
+			} else {
+				previousClock = this.clock;
+			}
+
+		}
+	}
+	
+	/*
+	public boolean isEndSimulation() {
+		if (servedJobs.size() + droppedJobs.size() == numberOfJobs)
+			return true;
+		return false;
+	}*/
+
+	
+
+	public int getNextServer() {
+
+		int nextServer = 0;
+		double minimumTime = Double.POSITIVE_INFINITY;
+		int i = 0;
+		while (i < servers.size()) {
+			if (servers.get(i).isBrokeDown(clock) == false && servers.get(i).isEmptyStatus() == false
+					&& servers.get(i).getJobBeingServed().getServiceEndTime() < minimumTime) {
+				nextServer = i;
+				minimumTime = servers.get(i).getJobBeingServed().getServiceEndTime();
+			}
+			i++;
+		}
+
+
+package generator;
+
+import java.util.ArrayList;
+
+import randomGens.ExponentialGenerator;
+
+public class ServerBreakdownGenerator {
+
+	ArrayList<ArrayList<Double>> breakdownList;
+	ArrayList<ArrayList<Double>> repairList;
+	
+	ExponentialGenerator exponentialGeneratorBreakdown;
+	ExponentialGenerator exponentialGeneratorRepair;
+	int numberOfServer;
+	
+	double meanBreakdown;
+
+	public ServerBreakdownGenerator(int numberOfServers, double meanBreakdown, double meanRepair) {
+
+		exponentialGeneratorBreakdown = new ExponentialGenerator(meanBreakdown);
+		exponentialGeneratorRepair = new ExponentialGenerator(meanRepair);
+		this.numberOfServer = numberOfServers;
+
+		this.breakdownList = new ArrayList<ArrayList<Double>>();
+		this.repairList = new ArrayList<ArrayList<Double>>();
+		
+		this.meanBreakdown = meanBreakdown;
+
+	}
+
+	//Generate breakdowns and repairs for 5 iterations
+	public void GenerateBreakdownAndRepair() {
+		for (int i = 0; i < numberOfServer; ++i) {
+			breakdownList.add(new ArrayList<Double>(100));
+			repairList.add(new ArrayList<Double>(100));
+			for (int j = 0; j < 100; ++j) {
+				if(j != 0) {
+					breakdownList.get(i).add(this.breakdownList.get(i).get(j-1) + exponentialGeneratorBreakdown.generate());
+					repairList.get(i).add(exponentialGeneratorRepair.generate());
+				}else {
+					breakdownList.get(i).add(exponentialGeneratorBreakdown.generate());
+					repairList.get(i).add(exponentialGeneratorRepair.generate());
+				}
+			}
+		}
+	}
+	
+	//Make a copy of the breakdown list and return it
+	public ArrayList<ArrayList<Double>> RetrieveBreakdowns(){
+		ArrayList<ArrayList<Double>> breakdownCopy = new ArrayList<ArrayList<Double>>();
+		for (int i = 0; i < numberOfServer; ++i) {
+			breakdownCopy.add(new ArrayList<Double>(100));
+			//repairList.add(new ArrayList<Double>());
+			for (int j = 0; j < 100; ++j) {
+				breakdownCopy.get(i).add(breakdownList.get(i).get(j));
+				//repairList.get(i).add(exponentialGeneratorRepair.generate());
+			}
+		}
+		return breakdownCopy;
+	}
+	
+	//Make a copy of the repair list and return it
+	public ArrayList<ArrayList<Double>> RetrieveRepair(){
+		ArrayList<ArrayList<Double>> repairCopy = new ArrayList<ArrayList<Double>>();
+		for (int i = 0; i < numberOfServer; ++i) {
+			repairCopy.add(new ArrayList<Double>(100));
+			for (int j = 0; j < 100; ++j) {
+				repairCopy.get(i).add(repairList.get(i).get(j));
+			}
+		}
+		return repairCopy;
+	}
+	
+	public ArrayList<Integer> breakdownCounter() {
+		ArrayList<Integer> breakdownCounter = new ArrayList<Integer>(); // to count the number of breakdowns as they are independent
+		
+		for (int i = 0; i < numberOfServer; ++i) {
+			breakdownCounter.add(0);
+		}
+		return breakdownCounter;
+	}
+	
+}
+		return nextServer;
+
+	}
+	
