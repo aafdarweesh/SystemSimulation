@@ -43,14 +43,14 @@ public class Server {
 		this.timeLastBreakDown = -1;
 		this.timeToRepair = -1;
 		this.emptyStatus = true;
-		this.jobBeingServed = null; //drop the job (garbage collector will delete it)
+		this.jobBeingServed = null; 
 	}
 	//Breakdown
 	public void breakDown(double breakdownTime, double repairTime) {
 		this.timeLastBreakDown = breakdownTime;
 		this.timeToRepair = repairTime;
 		this.emptyStatus = true;
-		this.jobBeingServed = null; //drop the job (garbage collector will delete it)
+		this.jobBeingServed = null; //drop the job from the server
 	}
 
 	public double getId() {
