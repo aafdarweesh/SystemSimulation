@@ -151,7 +151,7 @@ public class MMCBreakdown extends Simulation {
 				if(breakDownServer!=-1) { //if there is at least one server that is not broken down
 					if(!servers.get(breakDownServer).isEmptyStatus()) 
 						droppedJobs.add(servers.get(breakDownServer).getJobBeingServed()); //drop the job being served
-					servers.get(breakDownServer).breakDown(nextBreakDown, getRepairManFreeTime() + timeToRepairGenerator.generate());
+					servers.get(breakDownServer).breakDown(nextBreakDown, getRepairManBusyTime() + timeToRepairGenerator.generate());
 					//break down the server and generate a repair time
 				}
 				

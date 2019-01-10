@@ -410,20 +410,20 @@ public abstract class Simulation {
 	}
 	
 	//gets the time when a repairman will be available
-	public double getRepairManFreeTime() {
+	public double getRepairManBusyTime() {
 		if(isMultipleRepairMen())
 			return 0; //there is a repair man available all the time
-		double freeTime = 0; //now
+		double busyTime = 0; //free now
 		int i = 0;
 		while (i < servers.size()) {
 			if (servers.get(i).isBrokeDown(clock)) {
-				if(servers.get(i).getTimeToRepair() > freeTime)
-					freeTime = servers.get(i).getTimeToRepair();
+				if(servers.get(i).getRepairedTime() - clock > busyTime)
+					busyTime = servers.get(i).getRepairedTime() - clock;
 			}
 			i++;
 		}
 		
-		return freeTime;
+		return busyTime;
 	}
 
 }
